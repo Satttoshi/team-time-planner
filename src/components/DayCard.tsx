@@ -1,10 +1,12 @@
 'use client';
 
 import { AvailabilityGrid } from './AvailabilityGrid';
+import { NavigationButton } from './NavigationButton';
 import { formatDateForDisplay, isToday } from '@/lib/dateUtils';
 import { type PlayerAvailability } from '@/lib/actions';
 import { clsx } from 'clsx';
 import { Temporal } from 'temporal-polyfill';
+import { type Swiper as SwiperClass } from 'swiper';
 
 interface DayCardProps {
   date: Temporal.PlainDate;
@@ -12,6 +14,9 @@ interface DayCardProps {
   playerAvailabilities: PlayerAvailability[];
   onUpdate?: () => void;
   onUserActivity?: (isActive: boolean) => void;
+  swiper: SwiperClass | null;
+  canGoPrev: boolean;
+  canGoNext: boolean;
 }
 
 export function DayCard({
@@ -20,6 +25,9 @@ export function DayCard({
   playerAvailabilities,
   onUpdate,
   onUserActivity,
+  swiper,
+  canGoPrev,
+  canGoNext,
 }: DayCardProps) {
   const displayDate = formatDateForDisplay(date);
   const todayFlag = isToday(date);
@@ -38,19 +46,40 @@ export function DayCard({
           todayFlag && 'bg-blue-50'
         )}
       >
-        <h2
-          className={clsx(
-            'text-center text-lg font-semibold',
-            todayFlag ? 'text-blue-900' : 'text-gray-900'
-          )}
-        >
-          {displayDate}
-          {todayFlag && (
-            <span className="ml-2 text-sm font-normal text-blue-600">
-              (Today)
-            </span>
-          )}
-        </h2>
+        <div className="flex items-center justify-between">
+          {/* Left Navigation */}
+          <div className="flex items-center space-x-2">
+            <NavigationButton
+              direction="prev"
+              disabled={!canGoPrev}
+              swiper={swiper}
+            />
+          </div>
+
+          {/* Date Title */}
+          <h2
+            className={clsx(
+              'flex-1 text-center text-lg font-semibold',
+              todayFlag ? 'text-blue-900' : 'text-gray-900'
+            )}
+          >
+            {displayDate}
+            {todayFlag && (
+              <span className="ml-2 text-sm font-normal text-blue-600">
+                (Today)
+              </span>
+            )}
+          </h2>
+
+          {/* Right Navigation */}
+          <div className="flex items-center space-x-2">
+            <NavigationButton
+              direction="next"
+              disabled={!canGoNext}
+              swiper={swiper}
+            />
+          </div>
+        </div>
       </div>
 
       {/* Card Content */}

@@ -1,7 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Keyboard, Mousewheel } from 'swiper/modules';
+import { type Swiper as SwiperClass } from 'swiper';
 import 'swiper/css';
 import 'swiper/css/navigation';
 
@@ -25,6 +27,27 @@ export function SwiperContainer({
   onUpdate,
   onUserActivity,
 }: SwiperContainerProps) {
+  const [swiperInstance, setSwiperInstance] = useState<SwiperClass | null>(null);
+  const [navigationState, setNavigationState] = useState({
+    isBeginning: true,
+    isEnd: false,
+  });
+
+  const handleSwiperInit = (swiper: SwiperClass) => {
+    setSwiperInstance(swiper);
+    setNavigationState({
+      isBeginning: swiper.isBeginning,
+      isEnd: swiper.isEnd,
+    });
+
+    swiper.on('slideChange', () => {
+      setNavigationState({
+        isBeginning: swiper.isBeginning,
+        isEnd: swiper.isEnd,
+      });
+    });
+  };
+
   return (
     <div className="h-full w-full">
       <Swiper
@@ -33,10 +56,7 @@ export function SwiperContainer({
         slidesPerView={1}
         centeredSlides={true}
         initialSlide={initialSlideIndex}
-        navigation={{
-          nextEl: '.swiper-button-next',
-          prevEl: '.swiper-button-prev',
-        }}
+        onSwiper={handleSwiperInit}
         keyboard={{
           enabled: true,
           onlyInViewport: false,
@@ -76,6 +96,9 @@ export function SwiperContainer({
                     playerAvailabilities={playerAvailabilities}
                     onUpdate={onUpdate}
                     onUserActivity={onUserActivity}
+                    swiper={swiperInstance}
+                    canGoPrev={!navigationState.isBeginning}
+                    canGoNext={!navigationState.isEnd}
                   />
                 </div>
               </div>
@@ -83,10 +106,6 @@ export function SwiperContainer({
           );
         })}
       </Swiper>
-
-      {/* Navigation Buttons */}
-      <div className="swiper-button-prev !left-4 !h-10 !w-10 !rounded-full !bg-white !text-blue-600 shadow-lg after:!text-sm after:!font-bold"></div>
-      <div className="swiper-button-next !right-4 !h-10 !w-10 !rounded-full !bg-white !text-blue-600 shadow-lg after:!text-sm after:!font-bold"></div>
     </div>
   );
 }
