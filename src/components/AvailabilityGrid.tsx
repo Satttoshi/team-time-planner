@@ -200,19 +200,19 @@ export function AvailabilityGrid({
   };
 
   return (
-    <div className="w-full">
+    <div className="flex justify-center">
       <div
-        className="mt-2 grid gap-1"
+        className="mt-2 grid max-w-[450px] flex-1 gap-1 pr-1"
         style={{
-          gridTemplateColumns: `60px repeat(${playerAvailabilities.length}, 1fr)`,
-          gridTemplateRows: `40px repeat(${allHours.length}, 40px)`,
+          gridTemplateColumns: `repeat(${playerAvailabilities.length + 1}, 1fr)`,
+          gridTemplateRows: `28px repeat(${allHours.length}, 32px)`,
         }}
       >
         {/* Header row */}
         <div className="flex items-center justify-center">
           <button
             onClick={handleAddEarlyHour}
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 font-semibold text-gray-600 transition-colors hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex h-5 w-5 items-center justify-center rounded-full bg-gray-100 text-xs font-semibold text-gray-600 transition-colors hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
             title="Add earlier time slot"
             disabled={
               allHours.filter(hour => parseInt(hour) < 19).length >=
@@ -226,7 +226,7 @@ export function AvailabilityGrid({
         {playerAvailabilities.map(({ player }) => (
           <div
             key={player.id}
-            className="flex items-center justify-center truncate px-1 text-sm font-medium text-gray-700"
+            className="flex items-center justify-center truncate px-0.5 text-xs font-medium text-gray-700"
             title={player.name}
           >
             {player.name}
@@ -237,7 +237,7 @@ export function AvailabilityGrid({
         {allHours.map(hour => (
           <div key={hour} className="contents">
             {/* Time label */}
-            <div className="flex items-center justify-center text-sm font-medium text-gray-700">
+            <div className="flex items-center justify-center text-xs font-medium text-gray-700">
               {hour}:00
             </div>
 
@@ -258,7 +258,7 @@ export function AvailabilityGrid({
                       )
                     }
                     className={clsx(
-                      'w-full max-w-[80px] transition-all duration-150',
+                      'w-full transition-all duration-150',
                       isPending && 'ring-opacity-50 ring-2 ring-blue-300'
                     )}
                   />
