@@ -64,25 +64,14 @@ export function PlannerClient({ initialData }: PlannerClientProps) {
 
   return (
     <main className="min-h-screen bg-gray-100 py-8">
-      <div className="container mx-auto px-4">
-        <div className="mb-8 text-center">
-          <h1 className="mb-2 text-3xl font-bold text-gray-900">
-            Counter-Strike Team Planner
-          </h1>
-          <p className="text-gray-600">
-            Plan your team&#39;s availability for the next 2 weeks
-          </p>
-        </div>
-
-        <div className="h-[700px]">
-          <SwiperContainer
-            dates={dates}
-            initialSlideIndex={currentDayIndex}
-            playerAvailabilityMap={playerAvailabilityMap}
-            onUpdate={loadAllData}
-            onUserActivity={setIsUserActive}
-          />
-        </div>
+      <div className="container mx-auto h-[700px]">
+        <SwiperContainer
+          dates={dates}
+          initialSlideIndex={currentDayIndex}
+          playerAvailabilityMap={playerAvailabilityMap}
+          onUpdate={loadAllData}
+          onUserActivity={setIsUserActive}
+        />
       </div>
     </main>
   );
