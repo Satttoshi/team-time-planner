@@ -43,11 +43,11 @@ export function StatusChip({ status, onClick, className }: StatusChipProps) {
     <button
       onClick={onClick}
       className={clsx(
-        'inline-flex items-center justify-center px-2 py-1 rounded-md text-xs font-medium border transition-colors duration-150 min-w-[60px] h-8',
+        'inline-flex h-8 min-w-[60px] items-center justify-center rounded-md border px-2 py-1 text-xs font-medium transition-colors duration-150',
         config.bgColor,
         config.textColor,
         config.borderColor,
-        'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500',
+        'focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none',
         className
       )}
     >
@@ -57,8 +57,15 @@ export function StatusChip({ status, onClick, className }: StatusChipProps) {
 }
 
 // Helper function to cycle through statuses
-export function getNextStatus(currentStatus: AvailabilityStatus): AvailabilityStatus {
-  const statusOrder: AvailabilityStatus[] = ['unknown', 'ready', 'uncertain', 'unready'];
+export function getNextStatus(
+  currentStatus: AvailabilityStatus
+): AvailabilityStatus {
+  const statusOrder: AvailabilityStatus[] = [
+    'unknown',
+    'ready',
+    'uncertain',
+    'unready',
+  ];
   const currentIndex = statusOrder.indexOf(currentStatus);
   const nextIndex = (currentIndex + 1) % statusOrder.length;
   return statusOrder[nextIndex];

@@ -1,6 +1,13 @@
-'use server'
+'use server';
 
-import { db, players, availability, type Player, type Availability, type AvailabilityStatus } from './db';
+import {
+  db,
+  players,
+  availability,
+  type Player,
+  type Availability,
+  type AvailabilityStatus,
+} from './db';
 import { eq, and, inArray } from 'drizzle-orm';
 import { sql } from 'drizzle-orm';
 
@@ -23,7 +30,9 @@ export async function createPlayer(name: string): Promise<Player> {
   }
 }
 
-export async function getAvailabilityForDates(dates: string[]): Promise<Availability[]> {
+export async function getAvailabilityForDates(
+  dates: string[]
+): Promise<Availability[]> {
   try {
     return await db
       .select()
@@ -46,10 +55,9 @@ export async function updateAvailabilityStatus(
     const existing = await db
       .select({ id: availability.id })
       .from(availability)
-      .where(and(
-        eq(availability.playerId, playerId),
-        eq(availability.date, date)
-      ));
+      .where(
+        and(eq(availability.playerId, playerId), eq(availability.date, date))
+      );
 
     if (existing.length > 0) {
       // Update existing record
@@ -57,12 +65,11 @@ export async function updateAvailabilityStatus(
         .update(availability)
         .set({
           hours: sql`jsonb_set(hours, ${`{${hour}}`}, ${`"${status}"`})`,
-          updatedAt: new Date()
+          updatedAt: new Date(),
         })
-        .where(and(
-          eq(availability.playerId, playerId),
-          eq(availability.date, date)
-        ));
+        .where(
+          and(eq(availability.playerId, playerId), eq(availability.date, date))
+        );
     } else {
       // Create new record
       await db.insert(availability).values({
@@ -102,7 +109,9 @@ export interface PlayerAvailability {
   availability: Record<string, AvailabilityStatus>; // hour -> status
 }
 
-export async function getPlayerAvailabilityForDate(date: string): Promise<PlayerAvailability[]> {
+export async function getPlayerAvailabilityForDate(
+  date: string
+): Promise<PlayerAvailability[]> {
   try {
     const allPlayers = await getPlayers();
     const availabilityRecords = await db
@@ -117,7 +126,9 @@ export async function getPlayerAvailabilityForDate(date: string): Promise<Player
 
       return {
         player,
-        availability: (playerAvailability?.hours as Record<string, AvailabilityStatus>) || {}
+        availability:
+          (playerAvailability?.hours as Record<string, AvailabilityStatus>) ||
+          {},
       };
     });
   } catch (error) {
@@ -126,7 +137,9 @@ export async function getPlayerAvailabilityForDate(date: string): Promise<Player
   }
 }
 
-export async function getAllPlayerAvailabilityForDates(dates: string[]): Promise<Record<string, PlayerAvailability[]>> {
+export async function getAllPlayerAvailabilityForDates(
+  dates: string[]
+): Promise<Record<string, PlayerAvailability[]>> {
   try {
     const allPlayers = await getPlayers();
     const availabilityRecords = await getAvailabilityForDates(dates);
@@ -134,8 +147,10 @@ export async function getAllPlayerAvailabilityForDates(dates: string[]): Promise
     const result: Record<string, PlayerAvailability[]> = {};
 
     for (const date of dates) {
-      const dayAvailabilityRecords = availabilityRecords.filter(record => record.date === date);
-      
+      const dayAvailabilityRecords = availabilityRecords.filter(
+        record => record.date === date
+      );
+
       result[date] = allPlayers.map(player => {
         const playerAvailability = dayAvailabilityRecords.find(
           record => record.playerId === player.id
@@ -143,7 +158,9 @@ export async function getAllPlayerAvailabilityForDates(dates: string[]): Promise
 
         return {
           player,
-          availability: (playerAvailability?.hours as Record<string, AvailabilityStatus>) || {}
+          availability:
+            (playerAvailability?.hours as Record<string, AvailabilityStatus>) ||
+            {},
         };
       });
     }

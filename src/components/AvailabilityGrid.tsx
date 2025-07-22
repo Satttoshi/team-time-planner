@@ -2,7 +2,10 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { StatusChip, getNextStatus } from './StatusChip';
-import { updateAvailabilityStatus, type PlayerAvailability } from '@/lib/actions';
+import {
+  updateAvailabilityStatus,
+  type PlayerAvailability,
+} from '@/lib/actions';
 import { type AvailabilityStatus } from '@/lib/db/schema';
 import { clsx } from 'clsx';
 
@@ -19,7 +22,7 @@ const AVAILABLE_EARLY_HOURS = ['16', '17', '18'];
 export function AvailabilityGrid({
   date,
   playerAvailabilities,
-  onUserActivity
+  onUserActivity,
 }: AvailabilityGridProps) {
   const [optimisticData, setOptimisticData] = useState<
     Record<string, AvailabilityStatus>
@@ -27,12 +30,17 @@ export function AvailabilityGrid({
   const [additionalHours, setAdditionalHours] = useState<string[]>([]);
   const [pendingUpdates, setPendingUpdates] = useState<Set<string>>(new Set());
 
-  const updateQueueRef = useRef<Map<string, {
-    playerId: number;
-    date: string;
-    hour: string;
-    status: AvailabilityStatus;
-  }>>(new Map());
+  const updateQueueRef = useRef<
+    Map<
+      string,
+      {
+        playerId: number;
+        date: string;
+        hour: string;
+        status: AvailabilityStatus;
+      }
+    >
+  >(new Map());
   const isProcessingRef = useRef(false);
   const activityTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -46,7 +54,9 @@ export function AvailabilityGrid({
       const optimisticStatus = optimisticData[key];
 
       // Find the server data for this player/hour combination
-      const playerData = playerAvailabilities.find(pa => pa.player.id === playerId);
+      const playerData = playerAvailabilities.find(
+        pa => pa.player.id === playerId
+      );
       const serverStatus = playerData?.availability[hour];
 
       // If server data matches optimistic data and the update is no longer pending, clear optimistic
@@ -69,9 +79,7 @@ export function AvailabilityGrid({
     new Set([
       ...additionalHours,
       ...DEFAULT_HOURS,
-      ...playerAvailabilities.flatMap(pa =>
-        Object.keys(pa.availability)
-      )
+      ...playerAvailabilities.flatMap(pa => Object.keys(pa.availability)),
     ])
   ).sort((a, b) => parseInt(a) - parseInt(b));
 
@@ -113,14 +121,18 @@ export function AvailabilityGrid({
     }
   };
 
-  const handleStatusChange = (playerId: number, hour: string, currentStatus: AvailabilityStatus) => {
+  const handleStatusChange = (
+    playerId: number,
+    hour: string,
+    currentStatus: AvailabilityStatus
+  ) => {
     const newStatus = getNextStatus(currentStatus);
     const key = `${playerId}-${hour}`;
 
     // Immediate optimistic update
     setOptimisticData(prev => ({
       ...prev,
-      [key]: newStatus
+      [key]: newStatus,
     }));
 
     // Add to pending updates
@@ -131,7 +143,7 @@ export function AvailabilityGrid({
       playerId,
       date,
       hour,
-      status: newStatus
+      status: newStatus,
     });
 
     // Signal user activity
@@ -157,15 +169,17 @@ export function AvailabilityGrid({
     if (optimistic) return optimistic;
 
     // Fallback to server data
-    const playerData = playerAvailabilities.find(pa => pa.player.id === playerId);
+    const playerData = playerAvailabilities.find(
+      pa => pa.player.id === playerId
+    );
     return playerData?.availability[hour] || 'unknown';
   };
 
   const handleAddEarlyHour = () => {
     // Find the next available early hour to add
     const currentEarlyHours = allHours.filter(hour => parseInt(hour) < 19);
-    const availableHours = AVAILABLE_EARLY_HOURS.filter(hour =>
-      !currentEarlyHours.includes(hour)
+    const availableHours = AVAILABLE_EARLY_HOURS.filter(
+      hour => !currentEarlyHours.includes(hour)
     );
 
     if (availableHours.length > 0) {
@@ -181,16 +195,19 @@ export function AvailabilityGrid({
         className="grid gap-1 p-4"
         style={{
           gridTemplateColumns: `60px repeat(${playerAvailabilities.length}, 1fr)`,
-          gridTemplateRows: `40px repeat(${allHours.length}, 40px)`
+          gridTemplateRows: `40px repeat(${allHours.length}, 40px)`,
         }}
       >
         {/* Header row */}
         <div className="flex items-center justify-center">
           <button
             onClick={handleAddEarlyHour}
-            className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 font-semibold text-gray-600 transition-colors hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
             title="Add earlier time slot"
-            disabled={allHours.filter(hour => parseInt(hour) < 19).length >= AVAILABLE_EARLY_HOURS.length}
+            disabled={
+              allHours.filter(hour => parseInt(hour) < 19).length >=
+              AVAILABLE_EARLY_HOURS.length
+            }
           >
             +
           </button>
@@ -199,7 +216,7 @@ export function AvailabilityGrid({
         {playerAvailabilities.map(({ player }) => (
           <div
             key={player.id}
-            className="flex items-center justify-center font-medium text-sm text-gray-700 truncate px-1"
+            className="flex items-center justify-center truncate px-1 text-sm font-medium text-gray-700"
             title={player.name}
           >
             {player.name}
@@ -210,7 +227,7 @@ export function AvailabilityGrid({
         {allHours.map(hour => (
           <div key={hour} className="contents">
             {/* Time label */}
-            <div className="flex items-center justify-center font-medium text-sm text-gray-700">
+            <div className="flex items-center justify-center text-sm font-medium text-gray-700">
               {hour}:00
             </div>
 
@@ -223,10 +240,16 @@ export function AvailabilityGrid({
                 <div key={key} className="flex items-center justify-center">
                   <StatusChip
                     status={getStatus(player.id, hour)}
-                    onClick={() => handleStatusChange(player.id, hour, getStatus(player.id, hour))}
+                    onClick={() =>
+                      handleStatusChange(
+                        player.id,
+                        hour,
+                        getStatus(player.id, hour)
+                      )
+                    }
                     className={clsx(
                       'w-full max-w-[80px] transition-all duration-150',
-                      isPending && 'ring-2 ring-blue-300 ring-opacity-50'
+                      isPending && 'ring-opacity-50 ring-2 ring-blue-300'
                     )}
                   />
                 </div>

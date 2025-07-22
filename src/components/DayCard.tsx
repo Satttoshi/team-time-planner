@@ -14,30 +14,36 @@ interface DayCardProps {
   onUserActivity?: (isActive: boolean) => void;
 }
 
-export function DayCard({ 
-  date, 
-  dateString, 
-  playerAvailabilities, 
+export function DayCard({
+  date,
+  dateString,
+  playerAvailabilities,
   onUpdate,
-  onUserActivity
+  onUserActivity,
 }: DayCardProps) {
   const displayDate = formatDateForDisplay(date);
   const todayFlag = isToday(date);
 
   return (
-    <div className={clsx(
-      'bg-white rounded-lg shadow-md border w-full h-full flex flex-col',
-      todayFlag && 'ring-2 ring-blue-500 border-blue-300'
-    )}>
+    <div
+      className={clsx(
+        'flex h-full w-full flex-col rounded-lg border bg-white shadow-md',
+        todayFlag && 'border-blue-300 ring-2 ring-blue-500'
+      )}
+    >
       {/* Card Header */}
-      <div className={clsx(
-        'px-6 py-4 border-b bg-gray-50 rounded-t-lg',
-        todayFlag && 'bg-blue-50'
-      )}>
-        <h2 className={clsx(
-          'text-lg font-semibold text-center',
-          todayFlag ? 'text-blue-900' : 'text-gray-900'
-        )}>
+      <div
+        className={clsx(
+          'rounded-t-lg border-b bg-gray-50 px-6 py-4',
+          todayFlag && 'bg-blue-50'
+        )}
+      >
+        <h2
+          className={clsx(
+            'text-center text-lg font-semibold',
+            todayFlag ? 'text-blue-900' : 'text-gray-900'
+          )}
+        >
           {displayDate}
           {todayFlag && (
             <span className="ml-2 text-sm font-normal text-blue-600">

@@ -23,10 +23,10 @@ export function SwiperContainer({
   initialSlideIndex,
   playerAvailabilityMap,
   onUpdate,
-  onUserActivity
+  onUserActivity,
 }: SwiperContainerProps) {
   return (
-    <div className="w-full h-full">
+    <div className="h-full w-full">
       <Swiper
         modules={[Navigation, Keyboard, Mousewheel]}
         spaceBetween={16}
@@ -60,7 +60,7 @@ export function SwiperContainer({
             spaceBetween: 16,
           },
         }}
-        className="w-full h-full"
+        className="h-full w-full"
       >
         {dates.map((date, index) => {
           const dateString = formatDateForStorage(date);
@@ -68,8 +68,8 @@ export function SwiperContainer({
 
           return (
             <SwiperSlide key={dateString + index} className="h-full">
-              <div className="w-full h-full flex items-center justify-center px-4">
-                <div className="w-full max-w-4xl h-[600px]">
+              <div className="flex h-full w-full items-center justify-center px-4">
+                <div className="h-[600px] w-full max-w-4xl">
                   <DayCard
                     date={date}
                     dateString={dateString}
@@ -85,8 +85,8 @@ export function SwiperContainer({
       </Swiper>
 
       {/* Navigation Buttons */}
-      <div className="swiper-button-prev !text-blue-600 !bg-white !rounded-full !w-10 !h-10 shadow-lg after:!text-sm after:!font-bold !left-4"></div>
-      <div className="swiper-button-next !text-blue-600 !bg-white !rounded-full !w-10 !h-10 shadow-lg after:!text-sm after:!font-bold !right-4"></div>
+      <div className="swiper-button-prev !left-4 !h-10 !w-10 !rounded-full !bg-white !text-blue-600 shadow-lg after:!text-sm after:!font-bold"></div>
+      <div className="swiper-button-next !right-4 !h-10 !w-10 !rounded-full !bg-white !text-blue-600 shadow-lg after:!text-sm after:!font-bold"></div>
     </div>
   );
 }

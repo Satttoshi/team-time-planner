@@ -1,4 +1,11 @@
-import { pgTable, serial, text, timestamp, jsonb, integer } from 'drizzle-orm/pg-core';
+import {
+  pgTable,
+  serial,
+  text,
+  timestamp,
+  jsonb,
+  integer,
+} from 'drizzle-orm/pg-core';
 
 export const players = pgTable('players', {
   id: serial('id').primaryKey(),
@@ -8,7 +15,9 @@ export const players = pgTable('players', {
 
 export const availability = pgTable('availability', {
   id: serial('id').primaryKey(),
-  playerId: integer('player_id').notNull().references(() => players.id, { onDelete: 'cascade' }),
+  playerId: integer('player_id')
+    .notNull()
+    .references(() => players.id, { onDelete: 'cascade' }),
   date: text('date').notNull(), // Format: YYYY-MM-DD
   hours: jsonb('hours').notNull().default('{}'), // { "19": "ready", "20": "uncertain", "21": "unready" }
   updatedAt: timestamp('updated_at').defaultNow().notNull(),

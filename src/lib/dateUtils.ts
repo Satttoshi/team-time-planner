@@ -13,7 +13,9 @@ export function getNextFriday(date?: Temporal.PlainDate): Temporal.PlainDate {
   return d.add({ days: daysUntilFriday });
 }
 
-export function getTwoWeekWindow(startDate?: Temporal.PlainDate): Temporal.PlainDate[] {
+export function getTwoWeekWindow(
+  startDate?: Temporal.PlainDate
+): Temporal.PlainDate[] {
   const today = startDate || Temporal.Now.plainDateISO();
   const dayOfWeek = today.dayOfWeek; // 1 = Monday, 7 = Sunday
   const dates: Temporal.PlainDate[] = [];
@@ -42,7 +44,7 @@ export function formatDateForDisplay(date: Temporal.PlainDate): string {
   return date.toLocaleString('en-US', {
     weekday: 'long',
     month: 'short',
-    day: 'numeric'
+    day: 'numeric',
   });
 }
 
@@ -59,8 +61,8 @@ export function getCurrentDayIndex(dates: Temporal.PlainDate[]): number {
   const today = Temporal.Now.plainDateISO();
   const todayString = formatDateForStorage(today);
 
-  const index = dates.findIndex(date =>
-    formatDateForStorage(date) === todayString
+  const index = dates.findIndex(
+    date => formatDateForStorage(date) === todayString
   );
 
   return index >= 0 ? index : 0;
