@@ -14,14 +14,27 @@ export function getNextFriday(date?: Temporal.PlainDate): Temporal.PlainDate {
 }
 
 export function getTwoWeekWindow(startDate?: Temporal.PlainDate): Temporal.PlainDate[] {
-  const friday = startDate || getNextFriday();
+  const today = startDate || Temporal.Now.plainDateISO();
+  const dayOfWeek = today.dayOfWeek; // 1 = Monday, 7 = Sunday
   const dates: Temporal.PlainDate[] = [];
-  
-  for (let i = 0; i < 14; i++) {
-    const date = friday.add({ days: i });
-    dates.push(date);
+
+  if (dayOfWeek >= 1 && dayOfWeek <= 4) {
+    // Monday-Thursday: Show current week + next week (14 days)
+    const startOfCurrentWeek = getStartOfWeek(today);
+    for (let i = 0; i < 14; i++) {
+      const date = startOfCurrentWeek.add({ days: i });
+      dates.push(date);
+    }
+  } else {
+    // Friday-Sunday: Show last 3 days of current week and next 2 weeks (14 days)
+    const startOfCurrentWeek = getStartOfWeek(today);
+    const fridayOfCurrentWeek = startOfCurrentWeek.add({ days: 4 }); // Friday is the 5th day, index 4
+    for (let i = 0; i < 14; i++) {
+      const date = fridayOfCurrentWeek.add({ days: i });
+      dates.push(date);
+    }
   }
-  
+
   return dates;
 }
 
@@ -45,10 +58,10 @@ export function isToday(date: Temporal.PlainDate): boolean {
 export function getCurrentDayIndex(dates: Temporal.PlainDate[]): number {
   const today = Temporal.Now.plainDateISO();
   const todayString = formatDateForStorage(today);
-  
-  const index = dates.findIndex(date => 
+
+  const index = dates.findIndex(date =>
     formatDateForStorage(date) === todayString
   );
-  
+
   return index >= 0 ? index : 0;
 }
