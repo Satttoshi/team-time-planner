@@ -12,6 +12,7 @@ Real-time availability planner for a Counter-Strike team where 5-7 players/coach
 - **Real-time Strategy**: Smart optimistic updates + intelligent polling
 - **UI Library**: Tailwind CSS + Radix UI utilities
 - **Calendar Navigation**: Swiper.js for smooth day-to-day swiping
+- **Date/Time API**: Temporal API (future-proof, replacing Date API)
 - **Players**: Fixed set of 6 players (Mirko, Toby, Tom, Denis, Josh, Jannis)
 
 ## Database Schema
@@ -19,11 +20,12 @@ Real-time availability planner for a Counter-Strike team where 5-7 players/coach
 ```typescript
 // Two main tables:
 // 1. players (id, name, createdAt)
-// 2. availability (id, playerId, date, hours JSON, updatedAt)
+// 2. availability (id, playerId, date, hours JSONB, updatedAt)
 
-// hours JSON structure: { "19": "ready", "20": "uncertain", "21": "unready" }
+// hours JSONB structure: { "19": "ready", "20": "uncertain", "21": "unready" }
 // Statuses: "ready", "uncertain", "unready", "unknown"
 // Default time slots: 19:00-22:00, but any hour 0-23 can be added dynamically
+// Early hours available: 16:00, 17:00, 18:00 (can be added via + button)
 ```
 
 ## Critical Technical Requirements
@@ -54,8 +56,9 @@ Real-time availability planner for a Counter-Strike team where 5-7 players/coach
 
 ### Data Fetching Strategy
 
-- **Rolling 2-Week Window**: Always show next 14 days starting from Friday
-- **Smart Polling**: 5-second intervals, disabled during active editing
+- **Smart 2-Week Window**: Monday-Thursday shows current+next week, Friday-Sunday shows current weekend+next 2 weeks
+- **Current Day Always Included**: Date range logic ensures today is always visible and accessible
+- **Smart Polling**: 3-second intervals, disabled during active editing
 - **Client-Side Caching**: Full 2-week window loaded on startup
 - **Activity-Aware**: Polling intelligently pauses/resumes based on user activity
 
@@ -91,12 +94,16 @@ Real-time availability planner for a Counter-Strike team where 5-7 players/coach
 - [Next.js App Router API Routes](https://nextjs.org/docs/app/building-your-application/routing/route-handlers)
 - [Radix UI Components](https://www.radix-ui.com/primitives)
 - [Swiper.js React](https://swiperjs.com/react)
+- [Temporal API Documentation](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Temporal)
+- [Temporal PlainDate Methods](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Temporal/PlainDate)
+- [Temporal Calendar Operations](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Temporal/PlainDate/add)
 
 ## Current File Structure
 
 ```
 src/
 ├── app/
+│   ├── layout.tsx               # Root layout with metadata
 │   └── page.tsx                 # Server component (seeding + client wrapper)
 ├── components/
 │   ├── PlannerClient.tsx        # Main client component with polling logic
@@ -108,10 +115,11 @@ src/
 │   └── usePolling.ts            # Smart polling hook with activity detection
 ├── lib/
 │   ├── actions.ts               # Server actions for database operations
-│   ├── dateUtils.ts             # 2-week window calculation utilities
+│   ├── dateUtils.ts             # 2-week window calculation utilities (Temporal API)
 │   └── db/
 │       ├── index.ts             # Drizzle database connection
 │       └── schema.ts            # Database schema definitions
+drizzle.config.ts                # Drizzle kit configuration
 ```
 
 ## Technical Implementation Details
@@ -120,7 +128,15 @@ src/
 
 - `seedPlayersIfNeeded()`: Auto-seeds 6 default players
 - `getPlayerAvailabilityForDate()`: Loads availability for specific date
+- `getAllPlayerAvailabilityForDates()`: Loads availability for multiple dates efficiently
 - `updateAvailabilityStatus()`: Atomic single-hour updates with existence check
+
+### Date Logic (lib/dateUtils.ts) - Using Temporal API
+
+- `getTwoWeekWindow()`: Smart 2-week range that always includes current day
+- `getStartOfWeek()`: Monday-based week start calculation
+- `getCurrentDayIndex()`: Finds today's position within the date range
+- **IMPORTANT**: Always use Temporal API for date operations (Date API is deprecated)
 
 ### Optimistic Updates (components/AvailabilityGrid.tsx)
 
@@ -132,7 +148,7 @@ src/
 ### Smart Polling (hooks/usePolling.ts)
 
 - **Activity-Aware**: Automatically pauses during user editing
-- **Configurable**: 5-second intervals when active
+- **Configurable**: 3-second intervals when active (default)
 - **Error Handling**: Continues polling despite individual failures
 
 ## Current Status: ✅ COMPLETE
