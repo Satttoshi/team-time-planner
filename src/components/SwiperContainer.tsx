@@ -8,9 +8,10 @@ import 'swiper/css/navigation';
 import { DayCard } from './DayCard';
 import { formatDateForStorage } from '@/lib/dateUtils';
 import { type PlayerAvailability } from '@/lib/actions';
+import { Temporal } from 'temporal-polyfill';
 
 interface SwiperContainerProps {
-  dates: Date[];
+  dates: Temporal.PlainDate[];
   initialSlideIndex: number;
   playerAvailabilityMap: Record<string, PlayerAvailability[]>;
   onUpdate?: () => void;

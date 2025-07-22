@@ -4,9 +4,10 @@ import { AvailabilityGrid } from './AvailabilityGrid';
 import { formatDateForDisplay, isToday } from '@/lib/dateUtils';
 import { type PlayerAvailability } from '@/lib/actions';
 import { clsx } from 'clsx';
+import { Temporal } from 'temporal-polyfill';
 
 interface DayCardProps {
-  date: Date;
+  date: Temporal.PlainDate;
   dateString: string; // YYYY-MM-DD format
   playerAvailabilities: PlayerAvailability[];
   onUpdate?: () => void;
