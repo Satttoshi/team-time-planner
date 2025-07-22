@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { getPlayers, getPlayerAvailabilityForDate, type PlayerAvailability } from '@/lib/actions';
-import { getTwoWeekWindow, formatDateForStorage, getCurrentDayIndex } from '@/lib/dateUtils';
+import { useCallback, useEffect, useState } from 'react';
+import { getPlayerAvailabilityForDate, getPlayers, type PlayerAvailability } from '@/lib/actions';
+import { formatDateForStorage, getCurrentDayIndex, getTwoWeekWindow } from '@/lib/dateUtils';
 import { SwiperContainer } from './SwiperContainer';
 import { usePolling } from '@/hooks/usePolling';
 
@@ -17,12 +17,11 @@ export function PlannerClient() {
     try {
       const players = await getPlayers();
       const newMap: Record<string, PlayerAvailability[]> = {};
-      
+
       for (const date of dates) {
         const dateString = formatDateForStorage(date);
         try {
-          const playerAvailabilities = await getPlayerAvailabilityForDate(dateString);
-          newMap[dateString] = playerAvailabilities;
+          newMap[dateString] = await getPlayerAvailabilityForDate(dateString);
         } catch (error) {
           console.error(`Failed to load availability for ${dateString}:`, error);
           newMap[dateString] = players.map(player => ({
@@ -31,7 +30,7 @@ export function PlannerClient() {
           }));
         }
       }
-      
+
       setPlayerAvailabilityMap(newMap);
       setIsLoading(false);
     } catch (error) {
@@ -46,9 +45,9 @@ export function PlannerClient() {
   }, [loadAllData]);
 
   // Polling for real-time updates (disabled during active user editing)
-  usePolling(loadAllData, { 
-    interval: 5000, 
-    enabled: !isLoading && !isUserActive 
+  usePolling(loadAllData, {
+    interval: 5000,
+    enabled: !isLoading && !isUserActive
   });
 
   if (isLoading) {
@@ -70,10 +69,10 @@ export function PlannerClient() {
             Counter-Strike Team Planner
           </h1>
           <p className="text-gray-600">
-            Plan your team's availability for the next 2 weeks
+            Plan your team&#39;s availability for the next 2 weeks
           </p>
         </div>
-        
+
         <div className="h-[700px]">
           <SwiperContainer
             dates={dates}

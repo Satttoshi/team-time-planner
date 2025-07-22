@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { StatusChip, getNextStatus } from './StatusChip';
 import { updateAvailabilityStatus, type PlayerAvailability } from '@/lib/actions';
 import { type AvailabilityStatus } from '@/lib/db/schema';
@@ -16,10 +16,9 @@ interface AvailabilityGridProps {
 const DEFAULT_HOURS = ['19', '20', '21', '22'];
 const AVAILABLE_EARLY_HOURS = ['16', '17', '18'];
 
-export function AvailabilityGrid({ 
-  date, 
-  playerAvailabilities, 
-  onUpdate,
+export function AvailabilityGrid({
+  date,
+  playerAvailabilities,
   onUserActivity
 }: AvailabilityGridProps) {
   const [optimisticData, setOptimisticData] = useState<
@@ -27,7 +26,7 @@ export function AvailabilityGrid({
   >({});
   const [additionalHours, setAdditionalHours] = useState<string[]>([]);
   const [pendingUpdates, setPendingUpdates] = useState<Set<string>>(new Set());
-  
+
   const updateQueueRef = useRef<Map<string, {
     playerId: number;
     date: string;
@@ -35,14 +34,14 @@ export function AvailabilityGrid({
     status: AvailabilityStatus;
   }>>(new Map());
   const isProcessingRef = useRef(false);
-  const activityTimeoutRef = useRef<NodeJS.Timeout>();
+  const activityTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Get all hours that have any data, ensuring we include default hours and additional hours
   const allHours = Array.from(
     new Set([
       ...additionalHours,
       ...DEFAULT_HOURS,
-      ...playerAvailabilities.flatMap(pa => 
+      ...playerAvailabilities.flatMap(pa =>
         Object.keys(pa.availability)
       )
     ])
@@ -58,7 +57,7 @@ export function AvailabilityGrid({
     const updates = Array.from(updateQueueRef.current.values());
     updateQueueRef.current.clear();
 
-    // Process all updates
+    // Process-all updates
     const promises = updates.map(async ({ playerId, date, hour, status }) => {
       const key = `${playerId}-${hour}`;
       try {
@@ -87,7 +86,7 @@ export function AvailabilityGrid({
   const handleStatusChange = (playerId: number, hour: string, currentStatus: AvailabilityStatus) => {
     const newStatus = getNextStatus(currentStatus);
     const key = `${playerId}-${hour}`;
-    
+
     // Immediate optimistic update
     setOptimisticData(prev => ({
       ...prev,
@@ -107,7 +106,7 @@ export function AvailabilityGrid({
 
     // Signal user activity
     onUserActivity?.(true);
-    
+
     // Reset activity timeout
     if (activityTimeoutRef.current) {
       clearTimeout(activityTimeoutRef.current);
@@ -122,7 +121,7 @@ export function AvailabilityGrid({
 
   const getStatus = (playerId: number, hour: string): AvailabilityStatus => {
     const key = `${playerId}-${hour}`;
-    
+
     // Check for optimistic update first
     const optimistic = optimisticData[key];
     if (optimistic) return optimistic;
@@ -135,10 +134,10 @@ export function AvailabilityGrid({
   const handleAddEarlyHour = () => {
     // Find the next available early hour to add
     const currentEarlyHours = allHours.filter(hour => parseInt(hour) < 19);
-    const availableHours = AVAILABLE_EARLY_HOURS.filter(hour => 
+    const availableHours = AVAILABLE_EARLY_HOURS.filter(hour =>
       !currentEarlyHours.includes(hour)
     );
-    
+
     if (availableHours.length > 0) {
       // Add the latest available early hour (18, then 17, then 16)
       const nextHour = availableHours[availableHours.length - 1];
@@ -148,7 +147,7 @@ export function AvailabilityGrid({
 
   return (
     <div className="w-full">
-      <div 
+      <div
         className="grid gap-1 p-4"
         style={{
           gridTemplateColumns: `60px repeat(${playerAvailabilities.length}, 1fr)`,
@@ -157,7 +156,7 @@ export function AvailabilityGrid({
       >
         {/* Header row */}
         <div className="flex items-center justify-center">
-          <button 
+          <button
             onClick={handleAddEarlyHour}
             className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             title="Add earlier time slot"
@@ -166,7 +165,7 @@ export function AvailabilityGrid({
             +
           </button>
         </div>
-        
+
         {playerAvailabilities.map(({ player }) => (
           <div
             key={player.id}
@@ -184,12 +183,12 @@ export function AvailabilityGrid({
             <div className="flex items-center justify-center font-medium text-sm text-gray-700">
               {hour}:00
             </div>
-            
+
             {/* Player status cells */}
             {playerAvailabilities.map(({ player }) => {
               const key = `${player.id}-${hour}`;
               const isPending = pendingUpdates.has(key);
-              
+
               return (
                 <div key={key} className="flex items-center justify-center">
                   <StatusChip

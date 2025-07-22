@@ -12,7 +12,7 @@ export function usePolling(
   { interval = 3000, enabled = true }: UsePollingOptions = {}
 ) {
   const savedCallback = useRef(callback);
-  const intervalRef = useRef<NodeJS.Timeout>();
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Remember the latest callback
   useEffect(() => {
@@ -29,7 +29,7 @@ export function usePolling(
     };
 
     if (enabled) {
-      tick(); // Run immediately
+      tick().catch(console.error); // Run immediately
       intervalRef.current = setInterval(tick, interval);
     }
   }, [interval, enabled]);
@@ -37,7 +37,7 @@ export function usePolling(
   const stopPolling = useCallback(() => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
-      intervalRef.current = undefined;
+      intervalRef.current = null;
     }
   }, []);
 

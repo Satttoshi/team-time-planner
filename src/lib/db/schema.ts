@@ -15,9 +15,7 @@ export const availability = pgTable('availability', {
 });
 
 export type Player = typeof players.$inferSelect;
-export type NewPlayer = typeof players.$inferInsert;
 
 export type Availability = typeof availability.$inferSelect;
-export type NewAvailability = typeof availability.$inferInsert;
 
 export type AvailabilityStatus = 'ready' | 'uncertain' | 'unready' | 'unknown';

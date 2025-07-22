@@ -17,10 +17,10 @@ interface SwiperContainerProps {
   onUserActivity?: (isActive: boolean) => void;
 }
 
-export function SwiperContainer({ 
-  dates, 
-  initialSlideIndex, 
-  playerAvailabilityMap, 
+export function SwiperContainer({
+  dates,
+  initialSlideIndex,
+  playerAvailabilityMap,
   onUpdate,
   onUserActivity
 }: SwiperContainerProps) {
@@ -66,7 +66,7 @@ export function SwiperContainer({
           const playerAvailabilities = playerAvailabilityMap[dateString] || [];
 
           return (
-            <SwiperSlide key={dateString} className="h-full">
+            <SwiperSlide key={dateString + index} className="h-full">
               <div className="w-full h-full flex items-center justify-center px-4">
                 <div className="w-full max-w-4xl h-[600px]">
                   <DayCard
