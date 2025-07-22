@@ -42,7 +42,7 @@ export async function updateAvailabilityStatus(
   status: AvailabilityStatus
 ): Promise<void> {
   try {
-    // First, check if record exists
+    // First, check if a record exists
     const existing = await db
       .select({ id: availability.id })
       .from(availability)
@@ -80,14 +80,14 @@ export async function updateAvailabilityStatus(
 export async function seedPlayersIfNeeded(): Promise<void> {
   try {
     const existingPlayers = await db.select().from(players);
-    
+
     if (existingPlayers.length === 0) {
       const playerNames = ['Mirko', 'Toby', 'Tom', 'Denis', 'Josh', 'Jannis'];
-      
+
       for (const name of playerNames) {
         await db.insert(players).values({ name });
       }
-      
+
       console.log('Seeded database with default players');
     }
   } catch (error) {
@@ -123,5 +123,34 @@ export async function getPlayerAvailabilityForDate(date: string): Promise<Player
   } catch (error) {
     console.error('Error fetching player availability for date:', error);
     throw new Error('Failed to fetch player availability');
+  }
+}
+
+export async function getAllPlayerAvailabilityForDates(dates: string[]): Promise<Record<string, PlayerAvailability[]>> {
+  try {
+    const allPlayers = await getPlayers();
+    const availabilityRecords = await getAvailabilityForDates(dates);
+
+    const result: Record<string, PlayerAvailability[]> = {};
+
+    for (const date of dates) {
+      const dayAvailabilityRecords = availabilityRecords.filter(record => record.date === date);
+      
+      result[date] = allPlayers.map(player => {
+        const playerAvailability = dayAvailabilityRecords.find(
+          record => record.playerId === player.id
+        );
+
+        return {
+          player,
+          availability: (playerAvailability?.hours as Record<string, AvailabilityStatus>) || {}
+        };
+      });
+    }
+
+    return result;
+  } catch (error) {
+    console.error('Error fetching player availability for dates:', error);
+    throw new Error('Failed to fetch player availability for dates');
   }
 }

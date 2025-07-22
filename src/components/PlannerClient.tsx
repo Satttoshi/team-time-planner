@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { getPlayerAvailabilityForDate, getPlayers, type PlayerAvailability } from '@/lib/actions';
+import { getAllPlayerAvailabilityForDates, getPlayers, type PlayerAvailability } from '@/lib/actions';
 import { formatDateForStorage, getCurrentDayIndex, getTwoWeekWindow } from '@/lib/dateUtils';
 import { SwiperContainer } from './SwiperContainer';
 import { usePolling } from '@/hooks/usePolling';
@@ -15,26 +15,32 @@ export function PlannerClient() {
 
   const loadAllData = useCallback(async () => {
     try {
-      const players = await getPlayers();
-      const newMap: Record<string, PlayerAvailability[]> = {};
-
-      for (const date of dates) {
-        const dateString = formatDateForStorage(date);
-        try {
-          newMap[dateString] = await getPlayerAvailabilityForDate(dateString);
-        } catch (error) {
-          console.error(`Failed to load availability for ${dateString}:`, error);
-          newMap[dateString] = players.map(player => ({
-            player,
-            availability: {}
-          }));
-        }
-      }
+      const dateStrings = dates.map(date => formatDateForStorage(date));
+      const newMap = await getAllPlayerAvailabilityForDates(dateStrings);
 
       setPlayerAvailabilityMap(newMap);
       setIsLoading(false);
     } catch (error) {
       console.error('Failed to load data:', error);
+      
+      // Fallback: create empty availability for all players
+      try {
+        const players = await getPlayers();
+        const fallbackMap: Record<string, PlayerAvailability[]> = {};
+        
+        for (const date of dates) {
+          const dateString = formatDateForStorage(date);
+          fallbackMap[dateString] = players.map(player => ({
+            player,
+            availability: {}
+          }));
+        }
+        
+        setPlayerAvailabilityMap(fallbackMap);
+      } catch (fallbackError) {
+        console.error('Failed to create fallback data:', fallbackError);
+      }
+      
       setIsLoading(false);
     }
   }, [dates]);
