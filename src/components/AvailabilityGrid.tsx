@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { StatusChip, getNextStatus } from './StatusChip';
 import { updateAvailabilityStatus, type PlayerAvailability } from '@/lib/actions';
 import { type AvailabilityStatus } from '@/lib/db/schema';
@@ -36,6 +36,34 @@ export function AvailabilityGrid({
   const isProcessingRef = useRef(false);
   const activityTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Clear optimistic data when server data matches user's intended changes
+  useEffect(() => {
+    const keysToRemove: string[] = [];
+
+    Object.keys(optimisticData).forEach(key => {
+      const [playerIdStr, hour] = key.split('-');
+      const playerId = parseInt(playerIdStr);
+      const optimisticStatus = optimisticData[key];
+
+      // Find the server data for this player/hour combination
+      const playerData = playerAvailabilities.find(pa => pa.player.id === playerId);
+      const serverStatus = playerData?.availability[hour];
+
+      // If server data matches optimistic data and the update is no longer pending, clear optimistic
+      if (serverStatus === optimisticStatus && !pendingUpdates.has(key)) {
+        keysToRemove.push(key);
+      }
+    });
+
+    if (keysToRemove.length > 0) {
+      setOptimisticData(prev => {
+        const updated = { ...prev };
+        keysToRemove.forEach(key => delete updated[key]);
+        return updated;
+      });
+    }
+  }, [playerAvailabilities, optimisticData, pendingUpdates]);
+
   // Get all hours that have any data, ensuring we include default hours and additional hours
   const allHours = Array.from(
     new Set([
@@ -68,6 +96,8 @@ export function AvailabilityGrid({
           updated.delete(key);
           return updated;
         });
+        // Keep optimistic data until polling brings in the updated server data
+        // This ensures users see their intended changes until confirmed by polling
       } catch (error) {
         console.error('Failed to update availability:', error);
         // Keep in pending on error, will retry
