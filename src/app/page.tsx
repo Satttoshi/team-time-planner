@@ -1,9 +1,15 @@
 import { PlannerClient } from '@/components/PlannerClient';
-import { seedPlayersIfNeeded } from '@/lib/actions';
+import { seedPlayersIfNeeded, getAllPlayerAvailabilityForDates } from '@/lib/actions';
+import { getTwoWeekWindow, formatDateForStorage } from '@/lib/dateUtils';
 
 export default async function Home() {
   // Seed the database if needed
   await seedPlayersIfNeeded();
   
-  return <PlannerClient />;
+  // Load initial data on server
+  const dates = getTwoWeekWindow();
+  const dateStrings = dates.map(date => formatDateForStorage(date));
+  const initialData = await getAllPlayerAvailabilityForDates(dateStrings);
+  
+  return <PlannerClient initialData={initialData} />;
 }

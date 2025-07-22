@@ -1,16 +1,19 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { getAllPlayerAvailabilityForDates, getPlayers, type PlayerAvailability } from '@/lib/actions';
 import { formatDateForStorage, getCurrentDayIndex, getTwoWeekWindow } from '@/lib/dateUtils';
 import { SwiperContainer } from './SwiperContainer';
 import { usePolling } from '@/hooks/usePolling';
 
-export function PlannerClient() {
+interface PlannerClientProps {
+  initialData: Record<string, PlayerAvailability[]>;
+}
+
+export function PlannerClient({ initialData }: PlannerClientProps) {
   const [dates] = useState(() => getTwoWeekWindow());
   const [currentDayIndex] = useState(() => getCurrentDayIndex(getTwoWeekWindow()));
-  const [playerAvailabilityMap, setPlayerAvailabilityMap] = useState<Record<string, PlayerAvailability[]>>({});
-  const [isLoading, setIsLoading] = useState(true);
+  const [playerAvailabilityMap, setPlayerAvailabilityMap] = useState<Record<string, PlayerAvailability[]>>(initialData);
   const [isUserActive, setIsUserActive] = useState(false);
 
   const loadAllData = useCallback(async () => {
@@ -19,7 +22,6 @@ export function PlannerClient() {
       const newMap = await getAllPlayerAvailabilityForDates(dateStrings);
 
       setPlayerAvailabilityMap(newMap);
-      setIsLoading(false);
     } catch (error) {
       console.error('Failed to load data:', error);
       
@@ -40,32 +42,14 @@ export function PlannerClient() {
       } catch (fallbackError) {
         console.error('Failed to create fallback data:', fallbackError);
       }
-      
-      setIsLoading(false);
     }
   }, [dates]);
-
-  // Initial data load
-  useEffect(() => {
-    loadAllData();
-  }, [loadAllData]);
 
   // Polling for real-time updates (disabled during active user editing)
   usePolling(loadAllData, {
     interval: 5000,
-    enabled: !isLoading && !isUserActive
+    enabled: !isUserActive
   });
-
-  if (isLoading) {
-    return (
-      <main className="min-h-screen bg-gray-100 py-8 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading team planner...</p>
-        </div>
-      </main>
-    );
-  }
 
   return (
     <main className="min-h-screen bg-gray-100 py-8">
