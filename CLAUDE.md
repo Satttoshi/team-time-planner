@@ -9,6 +9,7 @@ Real-time availability planner for a Counter-Strike team where 5-7 players/coach
 - **Framework**: Next.js 15 (App Router) with server actions
 - **Database**: Neon Postgres (configured in .env.local)
 - **ORM**: Drizzle ORM (lightweight, type-safe)
+- **Authentication**: Cookie-based password protection with middleware
 - **Real-time Strategy**: Smart optimistic updates + intelligent polling
 - **UI Library**: Tailwind CSS + Radix UI utilities
 - **Calendar Navigation**: Swiper.js for smooth day-to-day swiping
@@ -103,6 +104,8 @@ Real-time availability planner for a Counter-Strike team where 5-7 players/coach
 ```
 src/
 ├── app/
+│   ├── auth/
+│   │   └── page.tsx             # Password authentication form
 │   ├── layout.tsx               # Root layout with metadata
 │   └── page.tsx                 # Server component (seeding + client wrapper)
 ├── components/
@@ -115,10 +118,12 @@ src/
 │   └── usePolling.ts            # Smart polling hook with activity detection
 ├── lib/
 │   ├── actions.ts               # Server actions for database operations
+│   ├── auth-actions.ts          # Authentication server actions
 │   ├── dateUtils.ts             # 2-week window calculation utilities (Temporal API)
 │   └── db/
 │       ├── index.ts             # Drizzle database connection
 │       └── schema.ts            # Database schema definitions
+├── middleware.ts                # Authentication middleware with cookie validation
 drizzle.config.ts                # Drizzle kit configuration
 ```
 
@@ -130,6 +135,15 @@ drizzle.config.ts                # Drizzle kit configuration
 - `getPlayerAvailabilityForDate()`: Loads availability for specific date
 - `getAllPlayerAvailabilityForDates()`: Loads availability for multiple dates efficiently
 - `updateAvailabilityStatus()`: Atomic single-hour updates with existence check
+
+### Authentication System (lib/auth-actions.ts + middleware.ts)
+
+- **Environment Variables**: `APP_PASSWORD` (required), `AUTH_SECRET` (optional)
+- **Cookie-Based Auth**: Persistent 1-year cookie `auth-password` stores validated password
+- **Middleware Protection**: All routes except `/auth`, `/api`, `/_next` require valid cookie
+- **One-Time Password**: Enter `APP_PASSWORD` once, cookie persists until manually cleared
+- **Server Validation**: Password validation happens server-side for security
+- **Browser Extension Safe**: Uses `data-1p-ignore` and `autoComplete="off"` to prevent conflicts
 
 ### Date Logic (lib/dateUtils.ts) - Using Temporal API
 
@@ -162,6 +176,8 @@ drizzle.config.ts                # Drizzle kit configuration
 - ✅ Atomic database operations
 - ✅ Auto-seeded player data
 - ✅ Mobile-responsive design
+- ✅ Cookie-based authentication with persistent login
+- ✅ Middleware protection for all routes
 
 ## Success Criteria: ✅ ACHIEVED
 
@@ -171,3 +187,4 @@ drizzle.config.ts                # Drizzle kit configuration
 - ✅ **Perfect UX**: Can rapidly fill entire day's availability
 - ✅ Clean, intuitive grid interface for quick status changes
 - ✅ **Smart Syncing**: Background updates don't interfere with editing
+- ✅ **Secure Access**: Password protection with persistent authentication

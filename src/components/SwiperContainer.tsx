@@ -27,7 +27,9 @@ export function SwiperContainer({
   onUpdate,
   onUserActivity,
 }: SwiperContainerProps) {
-  const [swiperInstance, setSwiperInstance] = useState<SwiperClass | null>(null);
+  const [swiperInstance, setSwiperInstance] = useState<SwiperClass | null>(
+    null
+  );
   const [navigationState, setNavigationState] = useState({
     isBeginning: true,
     isEnd: false,
@@ -88,7 +90,7 @@ export function SwiperContainer({
 
           return (
             <SwiperSlide key={dateString + index} className="h-full">
-              <div className="flex h-full w-full items-center justify-center px-4">
+              <div className="flex h-full w-full justify-center">
                 <div className="h-[600px] w-full max-w-4xl">
                   <DayCard
                     date={date}

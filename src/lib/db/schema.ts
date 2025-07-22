@@ -19,7 +19,7 @@ export const availability = pgTable('availability', {
     .notNull()
     .references(() => players.id, { onDelete: 'cascade' }),
   date: text('date').notNull(), // Format: YYYY-MM-DD
-  hours: jsonb('hours').notNull().default('{}'), // { "19": "ready", "20": "uncertain", "21": "unready" }
+  hours: jsonb('hours').notNull().default('{}'), // { "19": "ready", "20": "uncertain", "21": "unready", "22": "ready", "23": "uncertain" }
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 

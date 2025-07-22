@@ -36,13 +36,13 @@ export function DayCard({
     <div
       className={clsx(
         'flex h-full w-full flex-col rounded-lg border bg-white shadow-md',
-        todayFlag && 'border-blue-300 ring-2 ring-blue-500'
+        todayFlag && 'bg-amber-300'
       )}
     >
       {/* Card Header */}
       <div
         className={clsx(
-          'rounded-t-lg border-b bg-gray-50 px-6 py-4',
+          'rounded-t-lg border-b bg-gray-50 px-4 py-4',
           todayFlag && 'bg-blue-50'
         )}
       >

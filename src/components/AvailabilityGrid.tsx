@@ -16,8 +16,18 @@ interface AvailabilityGridProps {
   onUserActivity?: (isActive: boolean) => void;
 }
 
-const DEFAULT_HOURS = ['19', '20', '21', '22'];
-const AVAILABLE_EARLY_HOURS = ['16', '17', '18'];
+const DEFAULT_HOURS = ['19', '20', '21', '22', '23'];
+const AVAILABLE_EARLY_HOURS = [
+  '10',
+  '11',
+  '12',
+  '13',
+  '14',
+  '15',
+  '16',
+  '17',
+  '18',
+];
 
 export function AvailabilityGrid({
   date,
@@ -192,7 +202,7 @@ export function AvailabilityGrid({
   return (
     <div className="w-full">
       <div
-        className="grid gap-1 p-4"
+        className="mt-2 grid gap-1"
         style={{
           gridTemplateColumns: `60px repeat(${playerAvailabilities.length}, 1fr)`,
           gridTemplateRows: `40px repeat(${allHours.length}, 40px)`,
