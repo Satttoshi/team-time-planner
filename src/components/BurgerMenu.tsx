@@ -2,7 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
-import { HamburgerMenuIcon, TrashIcon, Cross2Icon, SunIcon, MoonIcon, DesktopIcon } from '@radix-ui/react-icons';
+import {
+  HamburgerMenuIcon,
+  TrashIcon,
+  Cross2Icon,
+  SunIcon,
+  MoonIcon,
+  DesktopIcon,
+} from '@radix-ui/react-icons';
 import { deleteDayData } from '@/lib/actions';
 import { useTheme } from 'next-themes';
 import { clsx } from 'clsx';
@@ -89,83 +96,93 @@ export function BurgerMenu({ date, onDelete }: BurgerMenuProps) {
               'flex h-6 w-6 items-center justify-center rounded transition-colors',
               'text-foreground-secondary hover:bg-surface-elevated hover:text-foreground',
               'focus:bg-surface-elevated focus:text-foreground focus:outline-none',
-              'focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-ring-offset'
+              'focus:ring-ring focus:ring-offset-ring-offset focus:ring-2 focus:ring-offset-2'
             )}
             title="Options"
             type="button"
             onClick={handleOpenDialog}
           >
-            <HamburgerMenuIcon className="h-4 w-4 pointer-events-none" />
+            <HamburgerMenuIcon className="pointer-events-none h-4 w-4" />
           </button>
         </Dialog.Trigger>
 
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-50 bg-black/50" />
-          <Dialog.Content className={clsx(
-            'fixed left-1/2 top-1/2 z-50 w-[calc(100vw-16px)] max-w-md',
-            '-translate-x-1/2 -translate-y-1/2 rounded-lg p-6 shadow-lg',
-            'bg-surface-elevated border border-border-elevated'
-          )}>
-            <Dialog.Title className="mb-2 text-lg font-semibold text-foreground">
+          <Dialog.Content
+            className={clsx(
+              'fixed top-1/2 left-1/2 z-50 w-[calc(100vw-16px)] max-w-md',
+              '-translate-x-1/2 -translate-y-1/2 rounded-lg p-6 shadow-lg',
+              'bg-surface-elevated border-border-elevated border'
+            )}
+          >
+            <Dialog.Title className="text-foreground mb-2 text-lg font-semibold">
               Options
             </Dialog.Title>
-            
+
             {!showConfirmation ? (
               <>
-                <Dialog.Description className="mb-4 text-sm text-foreground-secondary">
+                <Dialog.Description className="text-foreground-secondary mb-4 text-sm">
                   Choose an option:
                 </Dialog.Description>
 
                 <div className="flex flex-col gap-3">
                   {/* Theme Selection */}
-                  <div className="border-b border-border pb-3">
-                    <h3 className="mb-2 text-sm font-medium text-foreground">Theme</h3>
+                  <div className="border-border border-b pb-3">
+                    <h3 className="text-foreground mb-2 text-sm font-medium">
+                      Theme
+                    </h3>
                     <div className="flex flex-col gap-1">
-                      {!mounted ? (
-                        // Static buttons during hydration
-                        (['light', 'dark', 'system'] as const).map((themeOption) => (
-                          <div
-                            key={themeOption}
-                            className="flex items-center gap-2 rounded px-3 py-2 text-sm font-medium text-foreground-secondary"
-                          >
-                            {getThemeIcon(themeOption)}
-                            {getThemeLabel(themeOption)}
-                          </div>
-                        ))
-                      ) : (
-                        // Interactive buttons after mounting
-                        (['light', 'dark', 'system'] as const).map((themeOption) => (
-                          <button
-                            key={themeOption}
-                            className={clsx(
-                              'flex items-center gap-2 rounded px-3 py-2',
-                              'text-sm font-medium transition-colors focus:outline-none',
-                              theme === themeOption
-                                ? 'bg-primary text-white'
-                                : 'text-foreground-secondary hover:bg-surface-elevated hover:text-foreground focus:bg-surface-elevated focus:text-foreground'
-                            )}
-                            onClick={() => handleThemeChange(themeOption)}
-                          >
-                            {getThemeIcon(themeOption)}
-                            {getThemeLabel(themeOption)}
-                            {theme === themeOption && themeOption === 'system' && resolvedTheme && (
-                              <span className="ml-auto text-xs opacity-70">
-                                ({resolvedTheme})
-                              </span>
-                            )}
-                          </button>
-                        ))
-                      )}
+                      {!mounted
+                        ? // Static buttons during hydration
+                          (['light', 'dark', 'system'] as const).map(
+                            themeOption => (
+                              <div
+                                key={themeOption}
+                                className="text-foreground-secondary flex items-center gap-2 rounded px-3 py-2 text-sm font-medium"
+                              >
+                                {getThemeIcon(themeOption)}
+                                {getThemeLabel(themeOption)}
+                              </div>
+                            )
+                          )
+                        : // Interactive buttons after mounting
+                          (['light', 'dark', 'system'] as const).map(
+                            themeOption => (
+                              <button
+                                key={themeOption}
+                                className={clsx(
+                                  'flex items-center gap-2 rounded px-3 py-2',
+                                  'text-sm font-medium transition-colors focus:outline-none',
+                                  theme === themeOption
+                                    ? 'bg-primary text-white'
+                                    : 'text-foreground-secondary hover:bg-surface-elevated hover:text-foreground focus:bg-surface-elevated focus:text-foreground'
+                                )}
+                                onClick={() => handleThemeChange(themeOption)}
+                              >
+                                {getThemeIcon(themeOption)}
+                                {getThemeLabel(themeOption)}
+                                {theme === themeOption &&
+                                  themeOption === 'system' &&
+                                  resolvedTheme && (
+                                    <span className="ml-auto text-xs opacity-70">
+                                      ({resolvedTheme})
+                                    </span>
+                                  )}
+                              </button>
+                            )
+                          )}
                     </div>
                   </div>
 
                   {/* Day Options */}
                   <div>
-                    <h3 className="mb-2 text-sm font-medium text-foreground">Day Options</h3>
+                    <h3 className="text-foreground mb-2 text-sm font-medium">
+                      Day Options
+                    </h3>
                     <button
                       className={clsx(
                         'flex w-full items-center gap-2 rounded px-3 py-2',
-                        'text-sm font-medium text-foreground-secondary transition-colors',
+                        'text-foreground-secondary text-sm font-medium transition-colors',
                         'hover:bg-surface-elevated hover:text-foreground',
                         'focus:bg-surface-elevated focus:text-foreground focus:outline-none'
                       )}
@@ -175,7 +192,7 @@ export function BurgerMenu({ date, onDelete }: BurgerMenuProps) {
                       Delete Day Data
                     </button>
                   </div>
-                  
+
                   <Dialog.Close asChild>
                     <button
                       className={clsx(
@@ -192,9 +209,9 @@ export function BurgerMenu({ date, onDelete }: BurgerMenuProps) {
               </>
             ) : (
               <>
-                <Dialog.Description className="mb-4 text-sm text-foreground-secondary">
-                  Are you sure you want to delete all availability data for this day?
-                  This action cannot be undone.
+                <Dialog.Description className="text-foreground-secondary mb-4 text-sm">
+                  Are you sure you want to delete all availability data for this
+                  day? This action cannot be undone.
                 </Dialog.Description>
 
                 <div className="flex justify-end gap-3">
@@ -203,7 +220,7 @@ export function BurgerMenu({ date, onDelete }: BurgerMenuProps) {
                       'rounded px-4 py-2 text-sm font-medium transition-colors focus:outline-none',
                       'text-foreground-secondary hover:bg-surface-elevated hover:text-foreground',
                       'focus:bg-surface-elevated focus:text-foreground',
-                      isDeleting && 'opacity-50 cursor-not-allowed'
+                      isDeleting && 'cursor-not-allowed opacity-50'
                     )}
                     onClick={handleCancel}
                     disabled={isDeleting}
@@ -214,8 +231,8 @@ export function BurgerMenu({ date, onDelete }: BurgerMenuProps) {
                     className={clsx(
                       'flex items-center gap-2 rounded px-4 py-2 text-sm font-medium transition-colors focus:outline-none',
                       isDeleting
-                        ? 'cursor-not-allowed bg-status-unready-bg text-status-unready'
-                        : 'bg-status-unready text-white hover:brightness-110 focus:brightness-110'
+                        ? 'bg-status-unready-bg text-status-unready cursor-not-allowed'
+                        : 'bg-status-unready-bg text-foreground hover:brightness-110 focus:brightness-110'
                     )}
                     onClick={handleConfirmDelete}
                     disabled={isDeleting}
@@ -239,7 +256,7 @@ export function BurgerMenu({ date, onDelete }: BurgerMenuProps) {
             <Dialog.Close asChild>
               <button
                 className={clsx(
-                  'absolute right-4 top-4 rounded p-1 transition-colors focus:outline-none',
+                  'absolute top-4 right-4 rounded p-1 transition-colors focus:outline-none',
                   'text-foreground-muted hover:bg-surface-elevated hover:text-foreground-secondary',
                   'focus:bg-surface-elevated focus:text-foreground-secondary'
                 )}
