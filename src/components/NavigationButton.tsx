@@ -9,9 +9,13 @@ interface NavigationButtonProps {
   swiper: SwiperClass | null;
 }
 
-export function NavigationButton({ direction, disabled, swiper }: NavigationButtonProps) {
+export function NavigationButton({
+  direction,
+  disabled,
+  swiper,
+}: NavigationButtonProps) {
   if (disabled || !swiper) {
-    return <div className="w-10 h-10" />; // Placeholder space to maintain layout
+    return <div className="h-8 w-8" />; // Placeholder space to maintain layout
   }
 
   const handleClick = () => {
@@ -27,7 +31,7 @@ export function NavigationButton({ direction, disabled, swiper }: NavigationButt
   return (
     <button
       onClick={handleClick}
-      className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-800 text-blue-400 shadow-lg hover:bg-gray-700 hover:shadow-xl border border-gray-600 transition-all duration-200"
+      className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-600 bg-gray-800 text-blue-400 shadow-lg transition-all duration-200 hover:bg-gray-700 hover:shadow-xl"
       aria-label={direction === 'prev' ? 'Previous day' : 'Next day'}
     >
       <Icon className="h-5 w-5" />

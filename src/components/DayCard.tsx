@@ -33,17 +33,12 @@ export function DayCard({
   const todayFlag = isToday(date);
 
   return (
-    <div
-      className={clsx(
-        'flex w-full flex-col bg-gray-900 shadow-lg',
-        todayFlag && 'border-blue-600 bg-blue-900 shadow-blue-900/20'
-      )}
-    >
+    <div className={clsx('flex w-full flex-col bg-gray-900 shadow-lg')}>
       {/* Card Header */}
       <div
         className={clsx(
-          'border-b border-gray-700 bg-gray-800 px-6 py-4',
-          todayFlag && 'bg-blue-800/50'
+          'border-b border-gray-700 px-6 py-4',
+          todayFlag ? 'bg-blue-900' : 'bg-gray-800'
         )}
       >
         <div className="flex items-center justify-between">
@@ -64,11 +59,6 @@ export function DayCard({
             )}
           >
             {displayDate}
-            {todayFlag && (
-              <span className="ml-2 text-sm font-normal text-blue-300">
-                (Today)
-              </span>
-            )}
           </h2>
 
           {/* Right Navigation */}

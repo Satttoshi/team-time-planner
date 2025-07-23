@@ -360,7 +360,7 @@ export function AvailabilityGrid({
                 isBulkPending
                   ? 'ring-opacity-75 bg-gray-800 text-blue-200 ring-2 ring-blue-400'
                   : 'text-gray-300',
-                // Add subtle color hint based on bulk status
+                // Add a subtle color hint based on bulk status
                 !isBulkPending && bulkStatus === 'ready' && 'text-emerald-300',
                 !isBulkPending &&
                   bulkStatus === 'uncertain' &&
@@ -401,7 +401,8 @@ export function AvailabilityGrid({
                     }
                     className={clsx(
                       'w-full transition-all duration-150',
-                      (isPending || isBulkPending) && 'ring-opacity-75 ring-2 ring-blue-400'
+                      (isPending || isBulkPending) &&
+                        'ring-opacity-75 ring-2 ring-blue-400'
                     )}
                   />
                 </div>
