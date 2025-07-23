@@ -362,7 +362,11 @@ export function AvailabilityGrid({
         <div className="flex items-center justify-center">
           <button
             onClick={handleAddEarlyHour}
-            className="flex h-5 w-5 items-center justify-center rounded-full bg-gray-700 font-semibold text-gray-300 transition-colors hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
+            className={clsx(
+              'flex h-5 w-5 items-center justify-center rounded-full',
+              'bg-gray-700 font-semibold text-gray-300 transition-colors',
+              'hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50'
+            )}
             title="Add earlier time slot"
             disabled={
               allHours.filter(hour => parseInt(hour) < 19).length >=
@@ -382,11 +386,16 @@ export function AvailabilityGrid({
               key={player.id}
               onClick={() => handleBulkStatusChange(player.id)}
               className={clsx(
-                'flex items-center justify-center truncate rounded px-0.5 text-xs font-medium transition-all duration-150',
+                'flex items-center justify-center truncate rounded px-0.5',
+                'text-xs font-medium transition-all duration-150',
                 'hover:bg-gray-700 hover:text-white active:bg-gray-600',
-                'focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-950 focus:outline-none',
+                'focus:outline-none focus:ring-2 focus:ring-blue-400',
+                'focus:ring-offset-2 focus:ring-offset-gray-950',
                 isBulkPending
-                  ? 'ring-opacity-75 bg-gray-800 text-blue-200 ring-2 ring-blue-400'
+                  ? clsx(
+                      'bg-gray-800 text-blue-200 ring-2 ring-blue-400',
+                      'ring-opacity-75'
+                    )
                   : 'text-gray-300',
                 // Add a subtle color hint based on bulk status
                 !isBulkPending && bulkStatus === 'ready' && 'text-emerald-300',
@@ -395,7 +404,9 @@ export function AvailabilityGrid({
                   'text-amber-300',
                 !isBulkPending && bulkStatus === 'unready' && 'text-red-300'
               )}
-              title={`${player.name} - Click to set all times to ${getNextStatus(bulkStatus)}`}
+              title={`${player.name} - Click to set all times to ${getNextStatus(
+                bulkStatus
+              )}`}
             >
               {player.name}
             </button>

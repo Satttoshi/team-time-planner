@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { authenticateUser } from '@/lib/auth-actions';
+import { clsx } from 'clsx';
 
 export default function AuthPage() {
   const [password, setPassword] = useState('');
@@ -55,7 +56,12 @@ export default function AuthPage() {
               required
               value={password}
               onChange={e => setPassword(e.target.value)}
-              className="relative block w-full rounded-md border border-gray-600 bg-gray-800 px-3 py-2 text-gray-100 placeholder-gray-400 focus:z-10 focus:border-blue-400 focus:ring-blue-400 focus:outline-none sm:text-sm"
+              className={clsx(
+                'relative block w-full rounded-md border border-gray-600',
+                'bg-gray-800 px-3 py-2 text-gray-100 placeholder-gray-400',
+                'focus:z-10 focus:border-blue-400 focus:ring-blue-400',
+                'focus:outline-none sm:text-sm'
+              )}
               placeholder="Enter app password"
               disabled={isLoading}
               autoComplete="off"
@@ -71,7 +77,14 @@ export default function AuthPage() {
             <button
               type="submit"
               disabled={isLoading || !password.trim()}
-              className="group relative flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-950 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-700"
+              className={clsx(
+                'group relative flex w-full justify-center rounded-md',
+                'border border-transparent bg-blue-600 px-4 py-2',
+                'text-sm font-medium text-white hover:bg-blue-700',
+                'focus:outline-none focus:ring-2 focus:ring-blue-400',
+                'focus:ring-offset-2 focus:ring-offset-gray-950',
+                'disabled:cursor-not-allowed disabled:bg-gray-700'
+              )}
             >
               {isLoading ? 'Authenticating...' : 'Sign In'}
             </button>

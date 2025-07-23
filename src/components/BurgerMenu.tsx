@@ -52,18 +52,31 @@ export function BurgerMenu({ date, onDelete }: BurgerMenuProps) {
       <Dialog.Root open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <Dialog.Trigger asChild>
           <button
-            className="flex h-6 w-6 items-center justify-center rounded transition-colors hover:bg-gray-700 focus:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-800"
+            className={clsx(
+              'flex h-6 w-6 items-center justify-center rounded',
+              'transition-colors hover:bg-gray-700 focus:bg-gray-700',
+              'focus:outline-none focus:ring-2 focus:ring-blue-400',
+              'focus:ring-offset-2 focus:ring-offset-gray-800'
+            )}
             title="Options"
             type="button"
             onClick={handleOpenDialog}
           >
-            <HamburgerMenuIcon className="h-4 w-4 text-gray-300 hover:text-white pointer-events-none" />
+            <HamburgerMenuIcon 
+              className="h-4 w-4 text-gray-300 hover:text-white pointer-events-none" 
+            />
           </button>
         </Dialog.Trigger>
 
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-50 bg-black/50" />
-          <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-[calc(100vw-16px)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg border border-gray-600 bg-gray-800 p-6 shadow-lg">
+          <Dialog.Content 
+            className={clsx(
+              'fixed left-1/2 top-1/2 z-50 w-[calc(100vw-16px)] max-w-md',
+              '-translate-x-1/2 -translate-y-1/2 rounded-lg border',
+              'border-gray-600 bg-gray-800 p-6 shadow-lg'
+            )}
+          >
             <Dialog.Title className="mb-2 text-lg font-semibold text-gray-100">
               Day Options
             </Dialog.Title>
@@ -76,7 +89,12 @@ export function BurgerMenu({ date, onDelete }: BurgerMenuProps) {
 
                 <div className="flex flex-col gap-3">
                   <button
-                    className="flex items-center gap-2 rounded px-4 py-2 text-sm font-medium text-gray-300 transition-colors hover:bg-gray-700 hover:text-white focus:bg-gray-700 focus:text-white focus:outline-none"
+                    className={clsx(
+                      'flex items-center gap-2 rounded px-4 py-2',
+                      'text-sm font-medium text-gray-300 transition-colors',
+                      'hover:bg-gray-700 hover:text-white',
+                      'focus:bg-gray-700 focus:text-white focus:outline-none'
+                    )}
                     onClick={handleDeleteClick}
                   >
                     <TrashIcon className="h-3 w-3" />
@@ -85,7 +103,11 @@ export function BurgerMenu({ date, onDelete }: BurgerMenuProps) {
                   
                   <Dialog.Close asChild>
                     <button
-                      className="rounded px-4 py-2 text-sm font-medium text-gray-300 transition-colors hover:bg-gray-700 hover:text-white focus:bg-gray-700 focus:text-white focus:outline-none"
+                      className={clsx(
+                        'rounded px-4 py-2 text-sm font-medium text-gray-300',
+                        'transition-colors hover:bg-gray-700 hover:text-white',
+                        'focus:bg-gray-700 focus:text-white focus:outline-none'
+                      )}
                       onClick={handleCancel}
                     >
                       Cancel
@@ -102,7 +124,11 @@ export function BurgerMenu({ date, onDelete }: BurgerMenuProps) {
 
                 <div className="flex justify-end gap-3">
                   <button
-                    className="rounded px-4 py-2 text-sm font-medium text-gray-300 transition-colors hover:bg-gray-700 hover:text-white focus:bg-gray-700 focus:text-white focus:outline-none"
+                    className={clsx(
+                      'rounded px-4 py-2 text-sm font-medium text-gray-300',
+                      'transition-colors hover:bg-gray-700 hover:text-white',
+                      'focus:bg-gray-700 focus:text-white focus:outline-none'
+                    )}
                     onClick={handleCancel}
                     disabled={isDeleting}
                   >
@@ -113,7 +139,10 @@ export function BurgerMenu({ date, onDelete }: BurgerMenuProps) {
                       'flex items-center gap-2 rounded px-4 py-2 text-sm font-medium transition-colors focus:outline-none',
                       isDeleting
                         ? 'cursor-not-allowed bg-red-800 text-red-200'
-                        : 'bg-red-600 text-white hover:bg-red-700 focus:bg-red-700'
+                        : clsx(
+                            'bg-red-600 text-white hover:bg-red-700',
+                            'focus:bg-red-700'
+                          )
                     )}
                     onClick={handleConfirmDelete}
                     disabled={isDeleting}
@@ -136,7 +165,11 @@ export function BurgerMenu({ date, onDelete }: BurgerMenuProps) {
 
             <Dialog.Close asChild>
               <button
-                className="absolute right-4 top-4 rounded p-1 text-gray-400 transition-colors hover:bg-gray-700 hover:text-gray-300 focus:bg-gray-700 focus:text-gray-300 focus:outline-none"
+                className={clsx(
+                  'absolute right-4 top-4 rounded p-1 text-gray-400',
+                  'transition-colors hover:bg-gray-700 hover:text-gray-300',
+                  'focus:bg-gray-700 focus:text-gray-300 focus:outline-none'
+                )}
                 aria-label="Close"
               >
                 <Cross2Icon className="h-4 w-4" />

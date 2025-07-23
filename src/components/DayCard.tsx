@@ -34,7 +34,7 @@ export function DayCard({
   const todayFlag = isToday(date);
 
   return (
-    <div className={clsx('flex w-full flex-col bg-gray-900 shadow-lg')}>
+    <div className="flex w-full flex-col bg-gray-900 shadow-lg">
       {/* Card Header */}
       <div
         className={clsx(

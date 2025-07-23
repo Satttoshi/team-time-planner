@@ -43,11 +43,13 @@ export function StatusChip({ status, onClick, className }: StatusChipProps) {
     <button
       onClick={onClick}
       className={clsx(
-        'inline-flex h-8 min-w-[50px] items-center justify-center rounded border px-1 py-0.5 text-xs transition-colors duration-150',
+        'inline-flex h-8 min-w-[50px] items-center justify-center',
+        'rounded border px-1 py-0.5 text-xs transition-colors duration-150',
         config.bgColor,
         config.textColor,
         config.borderColor,
-        'focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-950 focus:outline-none',
+        'focus:outline-none focus:ring-2 focus:ring-blue-400',
+        'focus:ring-offset-2 focus:ring-offset-gray-950',
         className
       )}
     >
