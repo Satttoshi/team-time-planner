@@ -51,63 +51,47 @@ export function SwiperContainer({
   };
 
   return (
-    <div className="h-full w-full">
-      <Swiper
-        modules={[Navigation, Keyboard, Mousewheel]}
-        spaceBetween={16}
-        slidesPerView={1}
-        centeredSlides={true}
-        initialSlide={initialSlideIndex}
-        onSwiper={handleSwiperInit}
-        keyboard={{
-          enabled: true,
-          onlyInViewport: false,
-        }}
-        mousewheel={{
-          forceToAxis: true,
-          sensitivity: 1,
-          releaseOnEdges: true,
-        }}
-        breakpoints={{
-          640: {
-            slidesPerView: 1.2,
-            spaceBetween: 20,
-          },
-          768: {
-            slidesPerView: 1.5,
-            spaceBetween: 24,
-          },
-          1024: {
-            slidesPerView: 1,
-            spaceBetween: 16,
-          },
-        }}
-        className="h-full w-full"
-      >
-        {dates.map((date, index) => {
-          const dateString = formatDateForStorage(date);
-          const playerAvailabilities = playerAvailabilityMap[dateString] || [];
+    <Swiper
+      modules={[Navigation, Keyboard, Mousewheel]}
+      spaceBetween={16}
+      slidesPerView={1}
+      centeredSlides={true}
+      initialSlide={initialSlideIndex}
+      onSwiper={handleSwiperInit}
+      keyboard={{
+        enabled: true,
+        onlyInViewport: false,
+      }}
+      mousewheel={{
+        forceToAxis: true,
+        sensitivity: 1,
+        releaseOnEdges: true,
+      }}
+      className="h-full sm:w-[600px]"
+    >
+      {dates.map((date, index) => {
+        const dateString = formatDateForStorage(date);
+        const playerAvailabilities = playerAvailabilityMap[dateString] || [];
 
-          return (
-            <SwiperSlide key={dateString + index} className="h-full">
-              <div className="flex h-full w-full justify-center">
-                <div className="h-[600px] w-full">
-                  <DayCard
-                    date={date}
-                    dateString={dateString}
-                    playerAvailabilities={playerAvailabilities}
-                    onUpdate={onUpdate}
-                    onUserActivity={onUserActivity}
-                    swiper={swiperInstance}
-                    canGoPrev={!navigationState.isBeginning}
-                    canGoNext={!navigationState.isEnd}
-                  />
-                </div>
+        return (
+          <SwiperSlide key={dateString + index} className="h-full">
+            <div className="w-max-[600px] flex h-full justify-center">
+              <div className="h-[600px] w-full">
+                <DayCard
+                  date={date}
+                  dateString={dateString}
+                  playerAvailabilities={playerAvailabilities}
+                  onUpdate={onUpdate}
+                  onUserActivity={onUserActivity}
+                  swiper={swiperInstance}
+                  canGoPrev={!navigationState.isBeginning}
+                  canGoNext={!navigationState.isEnd}
+                />
               </div>
-            </SwiperSlide>
-          );
-        })}
-      </Swiper>
-    </div>
+            </div>
+          </SwiperSlide>
+        );
+      })}
+    </Swiper>
   );
 }

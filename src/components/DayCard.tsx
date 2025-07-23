@@ -42,7 +42,7 @@ export function DayCard({
       {/* Card Header */}
       <div
         className={clsx(
-          'rounded-t-lg border-b bg-gray-50 px-4 py-4',
+          'rounded-t-lg border-b bg-gray-50 px-6 py-4',
           todayFlag && 'bg-blue-50'
         )}
       >
