@@ -44,6 +44,8 @@ export function AvailabilityGrid({
   const [bulkPendingPlayers, setBulkPendingPlayers] = useState<Set<number>>(
     new Set()
   );
+  const [hasHandledDelete, setHasHandledDelete] = useState(false);
+  const userActiveRef = useRef(false);
 
   const updateQueueRef = useRef<
     Map<
@@ -105,9 +107,14 @@ export function AvailabilityGrid({
     const hasAnyData = playerAvailabilities.some(pa => 
       Object.keys(pa.availability).length > 0
     );
+    const hasOptimisticData = Object.keys(optimisticData).length > 0 || pendingUpdates.size > 0 || bulkPendingPlayers.size > 0;
     
-    // If there's no server data but we have optimistic data, it means the day was deleted
-    if (!hasAnyData && (Object.keys(optimisticData).length > 0 || pendingUpdates.size > 0 || bulkPendingPlayers.size > 0)) {
+    // Only clear optimistic data if:
+    // 1. There's no server data
+    // 2. We haven't handled the delete yet  
+    // 3. We have optimistic data to clear
+    // 4. User is NOT currently actively editing (prevent clearing during new edits)
+    if (!hasAnyData && !hasHandledDelete && hasOptimisticData && !userActiveRef.current) {
       setOptimisticData({});
       setPendingUpdates(new Set());
       setBulkPendingPlayers(new Set());
@@ -125,8 +132,16 @@ export function AvailabilityGrid({
       
       // Signal that user is no longer active
       onUserActivity?.(false);
+      
+      // Mark that we've handled the delete
+      setHasHandledDelete(true);
     }
-  }, [playerAvailabilities, optimisticData, pendingUpdates, bulkPendingPlayers, onUserActivity]);
+    
+    // Reset the delete handling flag only when we get actual server data back
+    if (hasAnyData) {
+      setHasHandledDelete(false);
+    }
+  }, [playerAvailabilities, optimisticData, pendingUpdates, bulkPendingPlayers, onUserActivity, hasHandledDelete]);
 
   // Get all hours that have any data, ensuring we include default hours and additional hours
   const allHours = Array.from(
@@ -250,6 +265,9 @@ export function AvailabilityGrid({
     const newStatus = getNextStatus(currentStatus);
     const key = `${playerId}-${hour}`;
 
+    // Mark user as actively editing
+    userActiveRef.current = true;
+
     // Immediate optimistic update
     setOptimisticData(prev => ({
       ...prev,
@@ -275,6 +293,7 @@ export function AvailabilityGrid({
       clearTimeout(activityTimeoutRef.current);
     }
     activityTimeoutRef.current = setTimeout(() => {
+      userActiveRef.current = false;
       onUserActivity?.(false);
     }, 2000);
 
@@ -285,6 +304,9 @@ export function AvailabilityGrid({
   const handleBulkStatusChange = (playerId: number) => {
     const currentBulkStatus = getBulkStatus(playerId);
     const newStatus = getNextStatus(currentBulkStatus);
+
+    // Mark user as actively editing
+    userActiveRef.current = true;
 
     // Update all hours for this player optimistically
     allHours.forEach(hour => {
@@ -314,6 +336,7 @@ export function AvailabilityGrid({
       clearTimeout(activityTimeoutRef.current);
     }
     activityTimeoutRef.current = setTimeout(() => {
+      userActiveRef.current = false;
       onUserActivity?.(false);
     }, 2000);
 
