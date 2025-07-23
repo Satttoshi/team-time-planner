@@ -13,7 +13,7 @@ import { sql } from 'drizzle-orm';
 
 export async function getPlayers(): Promise<Player[]> {
   try {
-    return await db.select().from(players).orderBy(players.name);
+    return await db.select().from(players).orderBy(players.sortOrder);
   } catch (error) {
     console.error('Error fetching players:', error);
     throw new Error('Failed to fetch players');
@@ -141,13 +141,38 @@ export async function seedPlayersIfNeeded(): Promise<void> {
     const existingPlayers = await db.select().from(players);
 
     if (existingPlayers.length === 0) {
-      const playerNames = ['Mirco', 'Toby', 'Tom', 'Denis', 'Josh', 'Jannis'];
+      const playerData = [
+        { name: 'Mirco', role: 'player' as const, sortOrder: 1 },
+        { name: 'Toby', role: 'player' as const, sortOrder: 2 },
+        { name: 'Tom', role: 'player' as const, sortOrder: 3 },
+        { name: 'Denis', role: 'player' as const, sortOrder: 4 },
+        { name: 'Josh', role: 'player' as const, sortOrder: 5 },
+        { name: 'Jannis', role: 'coach' as const, sortOrder: 6 },
+      ];
 
-      for (const name of playerNames) {
-        await db.insert(players).values({ name });
+      for (const player of playerData) {
+        await db.insert(players).values(player);
       }
 
       console.log('Seeded database with default players');
+    } else {
+      // Update existing players with correct roles and sort orders
+      const playerUpdates = [
+        { name: 'Mirco', role: 'player' as const, sortOrder: 1 },
+        { name: 'Toby', role: 'player' as const, sortOrder: 2 },
+        { name: 'Tom', role: 'player' as const, sortOrder: 3 },
+        { name: 'Denis', role: 'player' as const, sortOrder: 4 },
+        { name: 'Josh', role: 'player' as const, sortOrder: 5 },
+        { name: 'Jannis', role: 'coach' as const, sortOrder: 6 },
+      ];
+
+      for (const update of playerUpdates) {
+        await db.update(players)
+          .set({ role: update.role, sortOrder: update.sortOrder })
+          .where(eq(players.name, update.name));
+      }
+
+      console.log('Updated existing players with roles and sort orders');
     }
   } catch (error) {
     console.error('Error seeding players:', error);
