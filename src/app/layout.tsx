@@ -27,9 +27,10 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <meta name="theme-color" content="#0a0a0a" />
+        <title>Reveal Planner</title>
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased h-full bg-background`}
+        className={`${geistSans.variable} ${geistMono.variable} bg-background h-full antialiased`}
       >
         <ThemeProvider
           enableSystem={true}
