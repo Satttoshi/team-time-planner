@@ -27,7 +27,7 @@ export function NavigationButton({ direction, disabled, swiper }: NavigationButt
   return (
     <button
       onClick={handleClick}
-      className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-blue-600 shadow-lg hover:bg-blue-50 hover:shadow-xl transition-all duration-200"
+      className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-800 text-blue-400 shadow-lg hover:bg-gray-700 hover:shadow-xl border border-gray-600 transition-all duration-200"
       aria-label={direction === 'prev' ? 'Previous day' : 'Next day'}
     >
       <Icon className="h-5 w-5" />

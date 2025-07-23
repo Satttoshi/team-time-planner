@@ -12,27 +12,27 @@ interface StatusChipProps {
 const statusConfig = {
   ready: {
     label: 'Ready',
-    bgColor: 'bg-green-100 hover:bg-green-200',
-    textColor: 'text-green-800',
-    borderColor: 'border-green-300',
+    bgColor: 'bg-emerald-800 hover:bg-emerald-700',
+    textColor: 'text-emerald-100',
+    borderColor: 'border-emerald-600',
   },
   uncertain: {
     label: 'Maybe',
-    bgColor: 'bg-yellow-100 hover:bg-yellow-200',
-    textColor: 'text-yellow-800',
-    borderColor: 'border-yellow-300',
+    bgColor: 'bg-amber-800 hover:bg-amber-700',
+    textColor: 'text-amber-100',
+    borderColor: 'border-amber-600',
   },
   unready: {
     label: 'No',
-    bgColor: 'bg-red-100 hover:bg-red-200',
-    textColor: 'text-red-800',
-    borderColor: 'border-red-300',
+    bgColor: 'bg-red-800 hover:bg-red-700',
+    textColor: 'text-red-100',
+    borderColor: 'border-red-600',
   },
   unknown: {
     label: '?',
-    bgColor: 'bg-gray-100 hover:bg-gray-200',
-    textColor: 'text-gray-600',
-    borderColor: 'border-gray-300',
+    bgColor: 'bg-gray-800 hover:bg-gray-700',
+    textColor: 'text-gray-300',
+    borderColor: 'border-gray-600',
   },
 };
 
@@ -43,11 +43,11 @@ export function StatusChip({ status, onClick, className }: StatusChipProps) {
     <button
       onClick={onClick}
       className={clsx(
-        'inline-flex h-8 min-w-[50px] items-center justify-center rounded border px-1.5 py-0.5 text-xs font-medium transition-colors duration-150',
+        'inline-flex h-8 min-w-[50px] items-center justify-center rounded border px-1 py-0.5 text-xs font-medium transition-colors duration-150',
         config.bgColor,
         config.textColor,
         config.borderColor,
-        'focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none',
+        'focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-950 focus:outline-none',
         className
       )}
     >

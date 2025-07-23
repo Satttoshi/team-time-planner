@@ -35,15 +35,15 @@ export function DayCard({
   return (
     <div
       className={clsx(
-        'flex h-full w-full flex-col rounded-lg border bg-white shadow-md',
-        todayFlag && 'bg-amber-300'
+        'flex h-full w-full flex-col bg-gray-900 shadow-lg',
+        todayFlag && 'border-blue-600 bg-blue-900 shadow-blue-900/20'
       )}
     >
       {/* Card Header */}
       <div
         className={clsx(
-          'rounded-t-lg border-b bg-gray-50 px-6 py-4',
-          todayFlag && 'bg-blue-50'
+          'border-b border-gray-700 bg-gray-800 px-6 py-4',
+          todayFlag && 'bg-blue-800/50'
         )}
       >
         <div className="flex items-center justify-between">
@@ -60,12 +60,12 @@ export function DayCard({
           <h2
             className={clsx(
               'flex-1 text-center text-lg font-semibold',
-              todayFlag ? 'text-blue-900' : 'text-gray-900'
+              todayFlag ? 'text-blue-100' : 'text-gray-100'
             )}
           >
             {displayDate}
             {todayFlag && (
-              <span className="ml-2 text-sm font-normal text-blue-600">
+              <span className="ml-2 text-sm font-normal text-blue-300">
                 (Today)
               </span>
             )}

@@ -212,7 +212,7 @@ export function AvailabilityGrid({
         <div className="flex items-center justify-center">
           <button
             onClick={handleAddEarlyHour}
-            className="flex h-5 w-5 items-center justify-center rounded-full bg-gray-100 text-xs font-semibold text-gray-600 transition-colors hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex h-5 w-5 items-center justify-center rounded-full bg-gray-700 text-xs font-semibold text-gray-300 transition-colors hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
             title="Add earlier time slot"
             disabled={
               allHours.filter(hour => parseInt(hour) < 19).length >=
@@ -226,7 +226,7 @@ export function AvailabilityGrid({
         {playerAvailabilities.map(({ player }) => (
           <div
             key={player.id}
-            className="flex items-center justify-center truncate px-0.5 text-xs font-medium text-gray-700"
+            className="flex items-center justify-center truncate px-0.5 text-xs font-medium text-gray-300"
             title={player.name}
           >
             {player.name}
@@ -237,7 +237,7 @@ export function AvailabilityGrid({
         {allHours.map(hour => (
           <div key={hour} className="contents">
             {/* Time label */}
-            <div className="flex items-center justify-center text-xs font-medium text-gray-700">
+            <div className="flex items-center justify-center text-xs font-medium text-gray-300">
               {hour}:00
             </div>
 
@@ -259,7 +259,7 @@ export function AvailabilityGrid({
                     }
                     className={clsx(
                       'w-full transition-all duration-150',
-                      isPending && 'ring-opacity-50 ring-2 ring-blue-300'
+                      isPending && 'ring-opacity-75 ring-2 ring-blue-400'
                     )}
                   />
                 </div>
