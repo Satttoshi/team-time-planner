@@ -141,7 +141,7 @@ export async function seedPlayersIfNeeded(): Promise<void> {
     const existingPlayers = await db.select().from(players);
 
     if (existingPlayers.length === 0) {
-      const playerNames = ['Mirko', 'Toby', 'Tom', 'Denis', 'Josh', 'Jannis'];
+      const playerNames = ['Mirco', 'Toby', 'Tom', 'Denis', 'Josh', 'Jannis'];
 
       for (const name of playerNames) {
         await db.insert(players).values({ name });
