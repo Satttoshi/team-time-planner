@@ -33,7 +33,7 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-950">
+    <div className="flex min-h-screen items-center justify-center">
       <div className="w-full max-w-md space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-100">
@@ -81,7 +81,7 @@ export default function AuthPage() {
                 'group relative flex w-full justify-center rounded-md',
                 'border border-transparent bg-blue-600 px-4 py-2',
                 'text-sm font-medium text-white hover:bg-blue-700',
-                'focus:outline-none focus:ring-2 focus:ring-blue-400',
+                'focus:ring-2 focus:ring-blue-400 focus:outline-none',
                 'focus:ring-offset-2 focus:ring-offset-gray-950',
                 'disabled:cursor-not-allowed disabled:bg-gray-700'
               )}

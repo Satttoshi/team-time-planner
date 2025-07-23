@@ -34,12 +34,12 @@ export function DayCard({
   const todayFlag = isToday(date);
 
   return (
-    <div className="flex w-full flex-col bg-gray-900 shadow-lg">
+    <div className="bg-surface flex w-full flex-col shadow-lg">
       {/* Card Header */}
       <div
         className={clsx(
-          'border-b border-gray-700 px-6 py-4',
-          todayFlag ? 'bg-blue-900' : 'bg-gray-800'
+          'border-border border-b px-6 py-4',
+          todayFlag ? 'bg-primary-bg' : 'bg-surface-elevated'
         )}
       >
         <div className="flex items-center justify-between">
@@ -55,14 +55,7 @@ export function DayCard({
           {/* Date Title with Burger Menu */}
           <div className="flex flex-1 items-center justify-center">
             <div className="flex items-center gap-4">
-              <h2
-                className={clsx(
-                  'text-lg font-semibold',
-                  todayFlag ? 'text-blue-100' : 'text-gray-100'
-                )}
-              >
-                {displayDate}
-              </h2>
+              <h2 className="text-lg font-semibold">{displayDate}</h2>
               <BurgerMenu date={dateString} onDelete={onUpdate} />
             </div>
           </div>

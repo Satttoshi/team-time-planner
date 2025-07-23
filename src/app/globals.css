@@ -1,8 +1,98 @@
 @import 'tailwindcss';
 
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+@theme {
+  /* Background Colors */
+  --color-background: #0a0a0a;        /* dark default */
+  --color-surface: #111111;           /* dark surface */
+  --color-surface-elevated: #1f1f1f;  /* dark elevated */
+  
+  /* Text Colors */
+  --color-foreground: #f9fafb;        /* dark text */
+  --color-foreground-secondary: #d1d5db; /* dark secondary text */
+  --color-foreground-muted: #9ca3af;  /* dark muted text */
+  
+  /* Border Colors */
+  --color-border: #374151;            /* dark borders */
+  --color-border-elevated: #4b5563;   /* dark elevated borders */
+  
+  /* Accent Colors */
+  --color-primary: #3b82f6;           /* blue accent */
+  --color-primary-bg: #1e3a8a;        /* blue background */
+  --color-primary-hover: #2563eb;     /* blue hover */
+  
+  /* Status Colors */
+  --color-status-ready: #6ee7b7;      /* ready green */
+  --color-status-ready-bg: #064e3b;   /* ready bg */
+  --color-status-uncertain: #fcd34d;  /* uncertain yellow */
+  --color-status-uncertain-bg: #78350f; /* uncertain bg */
+  --color-status-unready: #fca5a5;    /* unready red */
+  --color-status-unready-bg: #7f1d1d; /* unready bg */
+  --color-status-unknown: #d1d5db;    /* unknown gray */
+  --color-status-unknown-bg: #1f2937; /* unknown bg */
+  
+  /* Interactive States */
+  --color-ring: #60a5fa;              /* focus ring */
+  --color-ring-offset: #0a0a0a;       /* ring offset */
+  
+  /* Scrollbar Colors */
+  --color-scrollbar-track: #111111;   /* scrollbar track */
+  --color-scrollbar-thumb: #374151;   /* scrollbar thumb */
+  --color-scrollbar-thumb-hover: #4b5563; /* scrollbar thumb hover */
+}
+
 @layer base {
+  [data-theme="light"] {
+    --color-background: #ffffff;        /* white */
+    --color-surface: #f9fafb;           /* light surface */
+    --color-surface-elevated: #f3f4f6;  /* light elevated */
+    
+    --color-foreground: #111827;        /* dark text on light */
+    --color-foreground-secondary: #374151; /* dark secondary text */
+    --color-foreground-muted: #6b7280;  /* dark muted text */
+    
+    --color-border: #e5e7eb;            /* light borders */
+    --color-border-elevated: #d1d5db;   /* light elevated borders */
+    
+    --color-primary: #2563eb;           /* blue accent (darker) */
+    --color-primary-bg: #dbeafe;        /* blue background (lighter) */
+    --color-primary-hover: #1d4ed8;     /* blue hover (darker) */
+    
+    --color-status-ready: #059669;      /* ready green (darker) */
+    --color-status-ready-bg: #d1fae5;   /* ready bg (lighter) */
+    --color-status-uncertain: #d97706;  /* uncertain yellow (darker) */
+    --color-status-uncertain-bg: #fef3c7; /* uncertain bg (lighter) */
+    --color-status-unready: #dc2626;    /* unready red (darker) */
+    --color-status-unready-bg: #fee2e2; /* unready bg (lighter) */
+    --color-status-unknown: #4b5563;    /* unknown gray (darker) */
+    --color-status-unknown-bg: #f3f4f6; /* unknown bg (lighter) */
+    
+    --color-ring: #3b82f6;              /* focus ring */
+    --color-ring-offset: #ffffff;       /* ring offset (white) */
+    
+    --color-scrollbar-track: #f3f4f6;   /* light scrollbar track */
+    --color-scrollbar-thumb: #d1d5db;   /* light scrollbar thumb */
+    --color-scrollbar-thumb-hover: #9ca3af; /* light scrollbar thumb hover */
+  }
+}
+
+/* Root background colors */
+:root[data-theme="dark"] {
+  background-color: var(--color-background);
+}
+
+:root[data-theme="light"] {
+  background-color: var(--color-background);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
   body {
-    @apply bg-gray-950 text-gray-50 font-sans antialiased;
+    @apply bg-background text-foreground font-sans antialiased;
   }
   
   /* Scrollbar styling */
@@ -11,14 +101,14 @@
   }
   
   ::-webkit-scrollbar-track {
-    @apply bg-gray-900;
+    @apply bg-scrollbar-track;
   }
   
   ::-webkit-scrollbar-thumb {
-    @apply bg-gray-700 rounded-full;
+    @apply bg-scrollbar-thumb rounded-full;
   }
   
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-gray-600;
+    @apply bg-scrollbar-thumb-hover;
   }
 }

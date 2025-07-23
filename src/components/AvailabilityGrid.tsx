@@ -387,8 +387,9 @@ export function AvailabilityGrid({
             onClick={handleAddEarlyHour}
             className={clsx(
               'flex h-5 w-5 items-center justify-center rounded-full',
-              'bg-gray-700 font-semibold text-gray-300 transition-colors',
-              'hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50'
+              'bg-surface-elevated font-semibold text-foreground-secondary transition-colors',
+              'hover:bg-surface hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50',
+              'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-ring-offset'
             )}
             title="Add earlier time slot"
             disabled={
@@ -411,21 +412,21 @@ export function AvailabilityGrid({
               className={clsx(
                 'flex items-center justify-center truncate rounded px-0.5',
                 'text-xs font-medium transition-all duration-150',
-                'hover:bg-gray-700 hover:text-white active:bg-gray-600',
-                'focus:outline-none focus:ring-2 focus:ring-blue-400',
-                'focus:ring-offset-2 focus:ring-offset-gray-950',
+                'hover:bg-surface-elevated hover:text-foreground active:bg-surface',
+                'focus:outline-none focus:ring-2 focus:ring-ring',
+                'focus:ring-offset-2 focus:ring-offset-ring-offset',
                 isBulkPending
                   ? clsx(
-                      'bg-gray-800 text-blue-200 ring-2 ring-blue-400',
+                      'bg-surface-elevated text-primary ring-2 ring-primary',
                       'ring-opacity-75'
                     )
-                  : 'text-gray-300',
+                  : 'text-foreground-secondary',
                 // Add a subtle color hint based on bulk status
-                !isBulkPending && bulkStatus === 'ready' && 'text-emerald-300',
+                !isBulkPending && bulkStatus === 'ready' && 'text-status-ready',
                 !isBulkPending &&
                   bulkStatus === 'uncertain' &&
-                  'text-amber-300',
-                !isBulkPending && bulkStatus === 'unready' && 'text-red-300'
+                  'text-status-uncertain',
+                !isBulkPending && bulkStatus === 'unready' && 'text-status-unready'
               )}
               title={`${player.name} - Click to set all times to ${getNextStatus(
                 bulkStatus
@@ -440,7 +441,7 @@ export function AvailabilityGrid({
         {allHours.map(hour => (
           <div key={hour} className="contents">
             {/* Time label */}
-            <div className="flex items-center justify-center text-xs font-light text-gray-300">
+            <div className="flex items-center justify-center text-xs font-light text-foreground-secondary">
               {hour}:00
             </div>
 
@@ -464,7 +465,7 @@ export function AvailabilityGrid({
                     className={clsx(
                       'w-full transition-all duration-150',
                       (isPending || isBulkPending) &&
-                        'ring-opacity-75 ring-2 ring-blue-400'
+                        'ring-opacity-75 ring-2 ring-primary'
                     )}
                   />
                 </div>

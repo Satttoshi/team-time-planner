@@ -63,7 +63,7 @@ export function PlannerClient({ initialData }: PlannerClientProps) {
   });
 
   return (
-    <main className="min-h-screen bg-gray-950">
+    <main className="min-h-screen">
       <div className="container mx-auto h-[700px]">
         <SwiperContainer
           dates={dates}
