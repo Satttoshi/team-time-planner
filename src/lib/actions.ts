@@ -10,16 +10,6 @@ import {
 } from './db';
 import { eq, and, inArray } from 'drizzle-orm';
 import { sql } from 'drizzle-orm';
-import webpush from 'web-push';
-
-// Type for serialized push subscription
-interface SerializedPushSubscription {
-  endpoint: string;
-  keys: {
-    p256dh: string;
-    auth: string;
-  };
-}
 
 export async function getPlayers(): Promise<Player[]> {
   try {
@@ -81,7 +71,7 @@ export async function updateAvailabilityStatus(
           and(eq(availability.playerId, playerId), eq(availability.date, date))
         );
     } else {
-      // Create a new record
+      // Create new record
       await db.insert(availability).values({
         playerId,
         date,
@@ -128,7 +118,7 @@ export async function updateBulkAvailabilityStatus(
           and(eq(availability.playerId, playerId), eq(availability.date, date))
         );
     } else {
-      // Create a new record with all hours set to the status
+      // Create new record with all hours set to the status
       const hoursObj: Record<string, AvailabilityStatus> = {};
       hours.forEach(hour => {
         hoursObj[hour] = status;
@@ -242,68 +232,5 @@ export async function deleteDayData(date: string): Promise<void> {
   } catch (error) {
     console.error('Error deleting day data:', error);
     throw new Error('Failed to delete day data');
-  }
-}
-
-// Configure VAPID details for push notifications
-webpush.setVapidDetails(
-  'mailto:your-email@example.com',
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-  process.env.VAPID_PRIVATE_KEY!
-);
-
-// In-memory storage for subscriptions (in production, use database)
-let subscription: SerializedPushSubscription | null = null;
-
-export async function subscribeUser(sub: SerializedPushSubscription) {
-  try {
-    subscription = sub;
-    // In production: await db.subscriptions.create({ data: sub })
-    return { success: true };
-  } catch (error) {
-    console.error('Error subscribing user:', error);
-    return { success: false, error: 'Failed to subscribe user' };
-  }
-}
-
-export async function unsubscribeUser() {
-  try {
-    subscription = null;
-    // In production: await db.subscriptions.delete({ where: { ... } })
-    return { success: true };
-  } catch (error) {
-    console.error('Error unsubscribing user:', error);
-    return { success: false, error: 'Failed to unsubscribe user' };
-  }
-}
-
-export async function sendNotification(message: string) {
-  if (!subscription) {
-    return { success: false, error: 'No subscription available' };
-  }
-
-  try {
-    const payload = {
-      title: 'Team Time Planner',
-      body: message,
-      icon: '/next.svg',
-      badge: '/next.svg',
-      vibrate: [100, 50, 100],
-      data: {
-        dateOfArrival: Date.now(),
-        primaryKey: '1',
-        url: '/',
-      },
-    };
-
-    await webpush.sendNotification(subscription, JSON.stringify(payload));
-    return { success: true };
-  } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : 'Unknown error';
-    return {
-      success: false,
-      error: `Failed to send notification: ${errorMessage}`,
-    };
   }
 }

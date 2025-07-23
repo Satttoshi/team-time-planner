@@ -9,17 +9,10 @@ import {
   SunIcon,
   MoonIcon,
   DesktopIcon,
-  BellIcon,
 } from '@radix-ui/react-icons';
 import { deleteDayData } from '@/lib/actions';
 import { useTheme } from 'next-themes';
 import { clsx } from 'clsx';
-import {
-  notificationUnsupported,
-  checkPermissionStateAndAct,
-  registerAndSubscribe,
-  sendWebPush,
-} from '@/lib/push-utils';
 
 interface BurgerMenuProps {
   date: string; // YYYY-MM-DD format
@@ -32,24 +25,9 @@ export function BurgerMenu({ date, onDelete }: BurgerMenuProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme, resolvedTheme } = useTheme();
-  
-  // Push notification state
-  const [isNotificationSupported, setIsNotificationSupported] = useState(true);
-  const [subscription, setSubscription] = useState<PushSubscription | null>(null);
-  const [isRequestingPermission, setIsRequestingPermission] = useState(false);
-  const [isSendingNotification, setIsSendingNotification] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    
-    // Check notification support
-    const unsupported = notificationUnsupported();
-    setIsNotificationSupported(!unsupported);
-    
-    if (!unsupported) {
-      // Check existing permission and subscription
-      checkPermissionStateAndAct(setSubscription);
-    }
   }, []);
 
   const handleOpenDialog = () => {
@@ -106,38 +84,6 @@ export function BurgerMenu({ date, onDelete }: BurgerMenuProps) {
         return 'Dark Theme';
       case 'system':
         return 'System Theme';
-    }
-  };
-
-  const handleRequestNotificationPermission = async () => {
-    if (!isNotificationSupported) return;
-    
-    setIsRequestingPermission(true);
-    try {
-      const permission = await Notification.requestPermission();
-      if (permission === 'granted') {
-        await registerAndSubscribe(setSubscription);
-      }
-    } catch (error) {
-      console.error('Failed to request notification permission:', error);
-    } finally {
-      setIsRequestingPermission(false);
-    }
-  };
-
-  const handleSendTestNotification = async () => {
-    if (!subscription) return;
-    
-    setIsSendingNotification(true);
-    try {
-      const result = await sendWebPush('Test notification from Team Time Planner! 🚀');
-      if (!result.success) {
-        console.error('Failed to send notification:', result.error);
-      }
-    } catch (error) {
-      console.error('Failed to send test notification:', error);
-    } finally {
-      setIsSendingNotification(false);
     }
   };
 
@@ -227,66 +173,6 @@ export function BurgerMenu({ date, onDelete }: BurgerMenuProps) {
                           )}
                     </div>
                   </div>
-
-                  {/* Notifications */}
-                  {isNotificationSupported && (
-                    <div className="border-border border-b pb-3">
-                      <h3 className="text-foreground mb-2 text-sm font-medium">
-                        Notifications
-                      </h3>
-                      <div className="flex flex-col gap-1">
-                        {!subscription ? (
-                          <button
-                            className={clsx(
-                              'flex items-center gap-2 rounded px-3 py-2',
-                              'text-sm font-medium transition-colors focus:outline-none',
-                              isRequestingPermission
-                                ? 'cursor-not-allowed opacity-50 text-foreground-muted'
-                                : 'text-foreground-secondary hover:bg-surface-elevated hover:text-foreground focus:bg-surface-elevated focus:text-foreground'
-                            )}
-                            onClick={handleRequestNotificationPermission}
-                            disabled={isRequestingPermission}
-                          >
-                            {isRequestingPermission ? (
-                              <>
-                                <div className="h-3 w-3 animate-spin rounded-full border border-current border-t-transparent" />
-                                Requesting Permission...
-                              </>
-                            ) : (
-                              <>
-                                <BellIcon className="h-3 w-3" />
-                                Enable Notifications
-                              </>
-                            )}
-                          </button>
-                        ) : (
-                          <button
-                            className={clsx(
-                              'flex items-center gap-2 rounded px-3 py-2',
-                              'text-sm font-medium transition-colors focus:outline-none',
-                              isSendingNotification
-                                ? 'cursor-not-allowed opacity-50 text-foreground-muted'
-                                : 'text-foreground-secondary hover:bg-surface-elevated hover:text-foreground focus:bg-surface-elevated focus:text-foreground'
-                            )}
-                            onClick={handleSendTestNotification}
-                            disabled={isSendingNotification}
-                          >
-                            {isSendingNotification ? (
-                              <>
-                                <div className="h-3 w-3 animate-spin rounded-full border border-current border-t-transparent" />
-                                Sending...
-                              </>
-                            ) : (
-                              <>
-                                <BellIcon className="h-3 w-3" />
-                                Test Push Notification
-                              </>
-                            )}
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  )}
 
                   {/* Day Options */}
                   <div>

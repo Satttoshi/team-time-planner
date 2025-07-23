@@ -137,10 +137,9 @@ src/
 ├── hooks/
 │   └── usePolling.ts            # Smart polling hook with activity detection
 ├── lib/
-│   ├── actions.ts               # Server actions for database operations + push notifications
+│   ├── actions.ts               # Server actions for database operations
 │   ├── auth-actions.ts          # Authentication server actions
 │   ├── dateUtils.ts             # 2-week window calculation utilities (Temporal API)
-│   ├── push-utils.ts            # Web push notification utilities and service worker management
 │   └── db/
 │       ├── index.ts             # Drizzle database connection
 │       └── schema.ts            # Database schema definitions
@@ -156,9 +155,6 @@ drizzle.config.ts                # Drizzle kit configuration
 - `getPlayerAvailabilityForDate()`: Loads availability for specific date
 - `getAllPlayerAvailabilityForDates()`: Loads availability for multiple dates efficiently
 - `updateAvailabilityStatus()`: Atomic single-hour updates with existence check
-- `subscribeUser()`: Stores push notification subscription (in-memory storage)
-- `unsubscribeUser()`: Removes push notification subscription
-- `sendNotification()`: Sends web push notifications using VAPID configuration
 
 ### Authentication System (lib/auth-actions.ts + middleware.ts)
 
@@ -190,15 +186,6 @@ drizzle.config.ts                # Drizzle kit configuration
 - **Configurable**: 3-second intervals when active (default)
 - **Error Handling**: Continues polling despite individual failures
 
-### Web Push Notifications (lib/push-utils.ts)
-
-- **VAPID Configuration**: Uses environment variables for push notification setup
-- **Service Worker Registration**: Automatic service worker registration for push support
-- **Subscription Management**: Handles push subscription creation and storage
-- **Type-Safe Implementation**: Proper TypeScript types for PushSubscription JSON serialization
-- **Error Handling**: Graceful fallbacks when notifications are unsupported or denied
-- **Real-time Alerts**: Server actions can trigger push notifications to subscribed users
-
 ## Current Status: ✅ COMPLETE
 
 - ✅ Lightning-fast optimistic updates
@@ -213,7 +200,6 @@ drizzle.config.ts                # Drizzle kit configuration
 - ✅ Cookie-based authentication with persistent login
 - ✅ Middleware protection for all routes
 - ✅ Play day detection with optimal time block analysis
-- ✅ Web push notifications for real-time alerts
 
 ## Success Criteria: ✅ ACHIEVED
 
