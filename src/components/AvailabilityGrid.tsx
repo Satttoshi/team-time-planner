@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { PlusIcon } from '@radix-ui/react-icons';
 import { StatusChip, getNextStatus } from './StatusChip';
 import {
   updateAvailabilityStatus,
@@ -212,14 +213,14 @@ export function AvailabilityGrid({
         <div className="flex items-center justify-center">
           <button
             onClick={handleAddEarlyHour}
-            className="flex h-5 w-5 items-center justify-center rounded-full bg-gray-700 text-xs font-semibold text-gray-300 transition-colors hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex h-5 w-5 items-center justify-center rounded-full bg-gray-700 font-semibold text-gray-300 transition-colors hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
             title="Add earlier time slot"
             disabled={
               allHours.filter(hour => parseInt(hour) < 19).length >=
               AVAILABLE_EARLY_HOURS.length
             }
           >
-            +
+            <PlusIcon className="h-3 w-3" />
           </button>
         </div>
 
