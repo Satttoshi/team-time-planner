@@ -2,6 +2,7 @@
 
 import { AvailabilityGrid } from './AvailabilityGrid';
 import { NavigationButton } from './NavigationButton';
+import { BurgerMenu } from './BurgerMenu';
 import { formatDateForDisplay, isToday } from '@/lib/dateUtils';
 import { type PlayerAvailability } from '@/lib/actions';
 import { clsx } from 'clsx';
@@ -51,15 +52,20 @@ export function DayCard({
             />
           </div>
 
-          {/* Date Title */}
-          <h2
-            className={clsx(
-              'flex-1 text-center text-lg font-semibold',
-              todayFlag ? 'text-blue-100' : 'text-gray-100'
-            )}
-          >
-            {displayDate}
-          </h2>
+          {/* Date Title with Burger Menu */}
+          <div className="flex flex-1 items-center justify-center">
+            <div className="flex items-center gap-4">
+              <h2
+                className={clsx(
+                  'text-lg font-semibold',
+                  todayFlag ? 'text-blue-100' : 'text-gray-100'
+                )}
+              >
+                {displayDate}
+              </h2>
+              <BurgerMenu date={dateString} onDelete={onUpdate} />
+            </div>
+          </div>
 
           {/* Right Navigation */}
           <div className="flex items-center space-x-2">

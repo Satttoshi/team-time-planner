@@ -223,3 +223,14 @@ export async function getAllPlayerAvailabilityForDates(
     throw new Error('Failed to fetch player availability for dates');
   }
 }
+
+export async function deleteDayData(date: string): Promise<void> {
+  try {
+    // Delete all availability records for the specified date
+    await db.delete(availability).where(eq(availability.date, date));
+    console.log(`Deleted all availability data for date: ${date}`);
+  } catch (error) {
+    console.error('Error deleting day data:', error);
+    throw new Error('Failed to delete day data');
+  }
+}

@@ -100,6 +100,34 @@ export function AvailabilityGrid({
     }
   }, [playerAvailabilities, optimisticData, pendingUpdates]);
 
+  // Clear all optimistic data and pending updates when day data is deleted
+  useEffect(() => {
+    const hasAnyData = playerAvailabilities.some(pa => 
+      Object.keys(pa.availability).length > 0
+    );
+    
+    // If there's no server data but we have optimistic data, it means the day was deleted
+    if (!hasAnyData && (Object.keys(optimisticData).length > 0 || pendingUpdates.size > 0 || bulkPendingPlayers.size > 0)) {
+      setOptimisticData({});
+      setPendingUpdates(new Set());
+      setBulkPendingPlayers(new Set());
+      updateQueueRef.current.clear();
+      bulkUpdateQueueRef.current.clear();
+      
+      // Reset additional hours to empty since the day was cleared
+      setAdditionalHours([]);
+      
+      // Clear any pending activity timeout
+      if (activityTimeoutRef.current) {
+        clearTimeout(activityTimeoutRef.current);
+        activityTimeoutRef.current = null;
+      }
+      
+      // Signal that user is no longer active
+      onUserActivity?.(false);
+    }
+  }, [playerAvailabilities, optimisticData, pendingUpdates, bulkPendingPlayers, onUserActivity]);
+
   // Get all hours that have any data, ensuring we include default hours and additional hours
   const allHours = Array.from(
     new Set([
