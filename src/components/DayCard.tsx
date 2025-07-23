@@ -35,7 +35,7 @@ export function DayCard({
   return (
     <div
       className={clsx(
-        'flex h-full w-full flex-col bg-gray-900 shadow-lg',
+        'flex w-full flex-col bg-gray-900 shadow-lg',
         todayFlag && 'border-blue-600 bg-blue-900 shadow-blue-900/20'
       )}
     >
@@ -83,7 +83,7 @@ export function DayCard({
       </div>
 
       {/* Card Content */}
-      <div className="flex-1 overflow-hidden">
+      <div className="pb-8">
         <AvailabilityGrid
           date={dateString}
           playerAvailabilities={playerAvailabilities}

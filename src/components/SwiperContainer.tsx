@@ -75,8 +75,8 @@ export function SwiperContainer({
 
         return (
           <SwiperSlide key={dateString + index} className="h-full">
-            <div className="w-max-[600px] flex h-full justify-center">
-              <div className="h-[600px] w-full">
+            <div className="w-max-[600px] flex justify-center">
+              <div className="w-full">
                 <DayCard
                   date={date}
                   dateString={dateString}
