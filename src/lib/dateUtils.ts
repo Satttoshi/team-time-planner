@@ -67,3 +67,98 @@ export function getCurrentDayIndex(dates: Temporal.PlainDate[]): number {
 
   return index >= 0 ? index : 0;
 }
+
+export interface PlayDayOpportunity {
+  startHour: number;
+  endHour: number;
+  playerCount: number;
+  players: string[];
+}
+
+export function findPlayDayOpportunities(
+  playerAvailabilities: Array<{
+    player: { id: number; name: string };
+    availability: Record<string, 'ready' | 'uncertain' | 'unready' | 'unknown'>;
+  }>
+): PlayDayOpportunity[] {
+  const opportunities: PlayDayOpportunity[] = [];
+  const allHours = Array.from(
+    new Set(
+      playerAvailabilities.flatMap(pa => Object.keys(pa.availability))
+    )
+  ).map(h => parseInt(h)).sort((a, b) => a - b);
+
+  if (allHours.length === 0) return opportunities;
+
+  // Find consecutive blocks where 5+ players are available
+  let currentBlockStart = -1;
+  let currentBlockPlayers: string[] = [];
+  
+  for (let i = 0; i < allHours.length; i++) {
+    const hour = allHours[i];
+    
+    // Find players available for this hour
+    const availablePlayersThisHour = playerAvailabilities.filter(pa => {
+      const status = pa.availability[hour.toString()];
+      return status === 'ready' || status === 'uncertain';
+    });
+    
+    // Check if we have 5+ players AND if it's consecutive to previous hour
+    const hasEnoughPlayers = availablePlayersThisHour.length >= 5;
+    const isConsecutive = i === 0 || allHours[i] === allHours[i - 1] + 1;
+    
+    if (hasEnoughPlayers) {
+      // Check if same players as current block (for consecutive blocks)
+      const currentPlayerNames = availablePlayersThisHour.map(pa => pa.player.name).sort();
+      const samePlayersAsPrevious = currentBlockPlayers.length === 0 || 
+        JSON.stringify(currentPlayerNames) === JSON.stringify(currentBlockPlayers.sort());
+      
+      if (currentBlockStart === -1) {
+        // Start new block
+        currentBlockStart = hour;
+        currentBlockPlayers = currentPlayerNames;
+      } else if (isConsecutive && samePlayersAsPrevious) {
+        // Continue current block (same players, consecutive hour)
+        // currentBlockPlayers stays the same
+      } else {
+        // End current block and start new one
+        if (currentBlockStart !== -1 && allHours[i - 1] - currentBlockStart >= 1) {
+          // Save previous block (2+ hours minimum)
+          opportunities.push({
+            startHour: currentBlockStart,
+            endHour: allHours[i - 1],
+            playerCount: currentBlockPlayers.length,
+            players: currentBlockPlayers
+          });
+        }
+        // Start new block
+        currentBlockStart = hour;
+        currentBlockPlayers = currentPlayerNames;
+      }
+    } else {
+      // Not enough players, end current block if exists
+      if (currentBlockStart !== -1 && allHours[i - 1] - currentBlockStart >= 1) {
+        opportunities.push({
+          startHour: currentBlockStart,
+          endHour: allHours[i - 1],
+          playerCount: currentBlockPlayers.length,
+          players: currentBlockPlayers
+        });
+      }
+      currentBlockStart = -1;
+      currentBlockPlayers = [];
+    }
+  }
+  
+  // Handle final block
+  if (currentBlockStart !== -1 && allHours[allHours.length - 1] - currentBlockStart >= 1) {
+    opportunities.push({
+      startHour: currentBlockStart,
+      endHour: allHours[allHours.length - 1],
+      playerCount: currentBlockPlayers.length,
+      players: currentBlockPlayers
+    });
+  }
+
+  return opportunities;
+}

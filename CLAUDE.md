@@ -31,6 +31,17 @@ Real-time availability planner for a Counter-Strike team where 5-7 players/coach
 
 ## Critical Technical Requirements
 
+### Design System & Styling
+
+- **Design Tokens Only**: NEVER use raw Tailwind colors (e.g., `text-green-600`, `bg-blue-500`)
+- **Custom CSS Variables**: Use only design tokens defined in `globals.css` (e.g., `text-status-ready`, `bg-surface-elevated`)
+- **Theme Support**: All colors automatically support light/dark mode via CSS custom properties
+- **Status Colors**: Use semantic status tokens: `status-ready`, `status-uncertain`, `status-unready`, `status-unknown`
+- **Surface Colors**: Use surface hierarchy: `background`, `surface`, `surface-elevated`
+- **Text Colors**: Use text hierarchy: `foreground`, `foreground-secondary`, `foreground-muted`
+- **Border Colors**: Use border tokens: `border`, `border-elevated`
+- **Consistent Implementation**: Always check `globals.css` for available design tokens before styling
+
 ### Lightning-Fast UX Design
 
 - **Instant Response**: Status changes happen immediately on click (no waiting)
@@ -86,6 +97,15 @@ Real-time availability planner for a Counter-Strike team where 5-7 players/coach
 - **Smart Caching**: Client-side 2-week window cache
 - **Activity Detection**: Polling pauses during rapid editing
 - **Visual Sync State**: Blue rings show pending database updates
+
+### 🎮 **Play Day Detection**
+
+- **Smart Analysis**: Automatically detects when 5+ players are available for 2+ consecutive hours
+- **Same Team Requirement**: Ensures the SAME 5+ players are available for the entire duration
+- **Multiple Opportunities**: Shows all valid practice windows on the same day
+- **Optimal Blocks**: Displays longest consecutive periods, not overlapping ranges
+- **Visual Integration**: Prominent headings below availability grid in each DayCard
+- **Status Flexibility**: Counts both "ready" and "maybe" players as available
 
 ## Essential Links
 
@@ -150,6 +170,7 @@ drizzle.config.ts                # Drizzle kit configuration
 - `getTwoWeekWindow()`: Smart 2-week range that always includes current day
 - `getStartOfWeek()`: Monday-based week start calculation
 - `getCurrentDayIndex()`: Finds today's position within the date range
+- `findPlayDayOpportunities()`: Detects consecutive time blocks where 5+ same players are available
 - **IMPORTANT**: Always use Temporal API for date operations (Date API is deprecated)
 
 ### Optimistic Updates (components/AvailabilityGrid.tsx)
@@ -178,6 +199,7 @@ drizzle.config.ts                # Drizzle kit configuration
 - ✅ Mobile-responsive design
 - ✅ Cookie-based authentication with persistent login
 - ✅ Middleware protection for all routes
+- ✅ Play day detection with optimal time block analysis
 
 ## Success Criteria: ✅ ACHIEVED
 
@@ -188,6 +210,4 @@ drizzle.config.ts                # Drizzle kit configuration
 - ✅ Clean, intuitive grid interface for quick status changes
 - ✅ **Smart Syncing**: Background updates don't interfere with editing
 - ✅ **Secure Access**: Password protection with persistent authentication
-
-## Memories
-- Test to memorize
+- ✅ **Intelligent Scheduling**: Automatic detection of viable team practice sessions

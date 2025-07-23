@@ -3,7 +3,11 @@
 import { AvailabilityGrid } from './AvailabilityGrid';
 import { NavigationButton } from './NavigationButton';
 import { BurgerMenu } from './BurgerMenu';
-import { formatDateForDisplay, isToday } from '@/lib/dateUtils';
+import {
+  formatDateForDisplay,
+  isToday,
+  findPlayDayOpportunities,
+} from '@/lib/dateUtils';
 import { type PlayerAvailability } from '@/lib/actions';
 import { clsx } from 'clsx';
 import { Temporal } from 'temporal-polyfill';
@@ -32,6 +36,8 @@ export function DayCard({
 }: DayCardProps) {
   const displayDate = formatDateForDisplay(date);
   const todayFlag = isToday(date);
+
+  const playDayOpportunities = findPlayDayOpportunities(playerAvailabilities);
 
   return (
     <div className="bg-surface flex w-full flex-col shadow-lg">
@@ -79,6 +85,34 @@ export function DayCard({
           onUpdate={onUpdate}
           onUserActivity={onUserActivity}
         />
+
+        {/* Play Day Information */}
+        <div className="px-6 pt-6">
+          {playDayOpportunities.length > 0 ? (
+            <div className="space-y-2">
+              {playDayOpportunities.map((opp, index) => (
+                <div
+                  key={`${opp.startHour}-${opp.endHour}-${index}`}
+                  className="text-center"
+                >
+                  <h3 className="text-foreground text-lg font-bold">
+                    Possible Playday {opp.startHour.toString().padStart(2, '0')}
+                    :00-{(opp.endHour + 1).toString().padStart(2, '0')}:00
+                  </h3>
+                  <p className="text-status-ready text-sm">
+                    {opp.playerCount} players available
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center">
+              <h3 className="text-foreground-muted text-lg font-bold">
+                No Practice Opportunity
+              </h3>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
