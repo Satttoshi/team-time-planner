@@ -84,6 +84,58 @@ export async function updateAvailabilityStatus(
   }
 }
 
+export async function updateBulkAvailabilityStatus(
+  playerId: number,
+  date: string,
+  hours: string[],
+  status: AvailabilityStatus
+): Promise<void> {
+  try {
+    // First, check if a record exists
+    const existing = await db
+      .select({ id: availability.id, hours: availability.hours })
+      .from(availability)
+      .where(
+        and(eq(availability.playerId, playerId), eq(availability.date, date))
+      );
+
+    if (existing.length > 0) {
+      // Build JSONB update for multiple hours at once
+      const updateExpression = 'hours';
+      const hoursObj: Record<string, AvailabilityStatus> = {};
+
+      hours.forEach(hour => {
+        hoursObj[hour] = status;
+      });
+
+      await db
+        .update(availability)
+        .set({
+          hours: sql`${sql.raw(updateExpression)} || ${JSON.stringify(hoursObj)}::jsonb`,
+          updatedAt: new Date(),
+        })
+        .where(
+          and(eq(availability.playerId, playerId), eq(availability.date, date))
+        );
+    } else {
+      // Create new record with all hours set to the status
+      const hoursObj: Record<string, AvailabilityStatus> = {};
+      hours.forEach(hour => {
+        hoursObj[hour] = status;
+      });
+
+      await db.insert(availability).values({
+        playerId,
+        date,
+        hours: hoursObj,
+      });
+    }
+  } catch (error) {
+    console.error('Error updating bulk availability status:', error);
+    throw new Error('Failed to update bulk availability status');
+  }
+}
+
 export async function seedPlayersIfNeeded(): Promise<void> {
   try {
     const existingPlayers = await db.select().from(players);

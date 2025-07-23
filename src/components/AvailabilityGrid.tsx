@@ -5,6 +5,7 @@ import { PlusIcon } from '@radix-ui/react-icons';
 import { StatusChip, getNextStatus } from './StatusChip';
 import {
   updateAvailabilityStatus,
+  updateBulkAvailabilityStatus,
   type PlayerAvailability,
 } from '@/lib/actions';
 import { type AvailabilityStatus } from '@/lib/db/schema';
@@ -40,6 +41,9 @@ export function AvailabilityGrid({
   >({});
   const [additionalHours, setAdditionalHours] = useState<string[]>([]);
   const [pendingUpdates, setPendingUpdates] = useState<Set<string>>(new Set());
+  const [bulkPendingPlayers, setBulkPendingPlayers] = useState<Set<number>>(
+    new Set()
+  );
 
   const updateQueueRef = useRef<
     Map<
@@ -48,6 +52,17 @@ export function AvailabilityGrid({
         playerId: number;
         date: string;
         hour: string;
+        status: AvailabilityStatus;
+      }
+    >
+  >(new Map());
+  const bulkUpdateQueueRef = useRef<
+    Map<
+      number,
+      {
+        playerId: number;
+        date: string;
+        hours: string[];
         status: AvailabilityStatus;
       }
     >
@@ -94,40 +109,107 @@ export function AvailabilityGrid({
     ])
   ).sort((a, b) => parseInt(a) - parseInt(b));
 
+  // Get current bulk status for a player (most common status across all hours)
+  const getBulkStatus = (playerId: number): AvailabilityStatus => {
+    const statusCounts: Record<AvailabilityStatus, number> = {
+      ready: 0,
+      uncertain: 0,
+      unready: 0,
+      unknown: 0,
+    };
+
+    allHours.forEach(hour => {
+      const status = getStatus(playerId, hour);
+      statusCounts[status]++;
+    });
+
+    // Return the most frequent status, with unknown as default
+    let maxCount = 0;
+    let mostFrequentStatus: AvailabilityStatus = 'unknown';
+
+    (Object.entries(statusCounts) as [AvailabilityStatus, number][]).forEach(
+      ([status, count]) => {
+        if (count > maxCount) {
+          maxCount = count;
+          mostFrequentStatus = status;
+        }
+      }
+    );
+
+    return mostFrequentStatus;
+  };
+
   // Process queued updates in batches
   const processUpdateQueue = async () => {
-    if (isProcessingRef.current || updateQueueRef.current.size === 0) {
+    if (
+      isProcessingRef.current ||
+      (updateQueueRef.current.size === 0 &&
+        bulkUpdateQueueRef.current.size === 0)
+    ) {
       return;
     }
 
     isProcessingRef.current = true;
+
+    // Process individual updates
     const updates = Array.from(updateQueueRef.current.values());
     updateQueueRef.current.clear();
 
-    // Process-all updates
-    const promises = updates.map(async ({ playerId, date, hour, status }) => {
-      const key = `${playerId}-${hour}`;
-      try {
-        await updateAvailabilityStatus(playerId, date, hour, status);
-        // Remove from pending updates on success
-        setPendingUpdates(prev => {
-          const updated = new Set(prev);
-          updated.delete(key);
-          return updated;
-        });
-        // Keep optimistic data until polling brings in the updated server data
-        // This ensures users see their intended changes until confirmed by polling
-      } catch (error) {
-        console.error('Failed to update availability:', error);
-        // Keep in pending on error, will retry
-      }
-    });
+    // Process bulk updates
+    const bulkUpdates = Array.from(bulkUpdateQueueRef.current.values());
+    bulkUpdateQueueRef.current.clear();
 
-    await Promise.allSettled(promises);
+    // Process individual updates
+    const individualPromises = updates.map(
+      async ({ playerId, date, hour, status }) => {
+        const key = `${playerId}-${hour}`;
+        try {
+          await updateAvailabilityStatus(playerId, date, hour, status);
+          // Remove from pending updates on success
+          setPendingUpdates(prev => {
+            const updated = new Set(prev);
+            updated.delete(key);
+            return updated;
+          });
+        } catch (error) {
+          console.error('Failed to update availability:', error);
+        }
+      }
+    );
+
+    // Process bulk updates
+    const bulkPromises = bulkUpdates.map(
+      async ({ playerId, date, hours, status }) => {
+        try {
+          await updateBulkAvailabilityStatus(playerId, date, hours, status);
+          // Remove from bulk pending players on success
+          setBulkPendingPlayers(prev => {
+            const updated = new Set(prev);
+            updated.delete(playerId);
+            return updated;
+          });
+          // Remove individual pending updates for all hours affected
+          setPendingUpdates(prev => {
+            const updated = new Set(prev);
+            hours.forEach(hour => {
+              updated.delete(`${playerId}-${hour}`);
+            });
+            return updated;
+          });
+        } catch (error) {
+          console.error('Failed to update bulk availability:', error);
+        }
+      }
+    );
+
+    await Promise.allSettled([...individualPromises, ...bulkPromises]);
     isProcessingRef.current = false;
 
     // Process any new updates that came in while we were processing
-    if (updateQueueRef.current.size > 0) {
+    if (
+      updateQueueRef.current.size > 0 ||
+      bulkUpdateQueueRef.current.size > 0
+    ) {
       setTimeout(processUpdateQueue, 100);
     }
   };
@@ -154,6 +236,45 @@ export function AvailabilityGrid({
       playerId,
       date,
       hour,
+      status: newStatus,
+    });
+
+    // Signal user activity
+    onUserActivity?.(true);
+
+    // Reset activity timeout
+    if (activityTimeoutRef.current) {
+      clearTimeout(activityTimeoutRef.current);
+    }
+    activityTimeoutRef.current = setTimeout(() => {
+      onUserActivity?.(false);
+    }, 2000);
+
+    // Process updates after a short delay to allow for rapid clicking
+    setTimeout(processUpdateQueue, 300);
+  };
+
+  const handleBulkStatusChange = (playerId: number) => {
+    const currentBulkStatus = getBulkStatus(playerId);
+    const newStatus = getNextStatus(currentBulkStatus);
+
+    // Update all hours for this player optimistically
+    allHours.forEach(hour => {
+      const key = `${playerId}-${hour}`;
+      setOptimisticData(prev => ({
+        ...prev,
+        [key]: newStatus,
+      }));
+    });
+
+    // Add player to bulk pending
+    setBulkPendingPlayers(prev => new Set([...prev, playerId]));
+
+    // Queue the bulk server update
+    bulkUpdateQueueRef.current.set(playerId, {
+      playerId,
+      date,
+      hours: allHours,
       status: newStatus,
     });
 
@@ -224,21 +345,40 @@ export function AvailabilityGrid({
           </button>
         </div>
 
-        {playerAvailabilities.map(({ player }) => (
-          <div
-            key={player.id}
-            className="flex items-center justify-center truncate px-0.5 text-xs font-medium text-gray-300"
-            title={player.name}
-          >
-            {player.name}
-          </div>
-        ))}
+        {playerAvailabilities.map(({ player }) => {
+          const isBulkPending = bulkPendingPlayers.has(player.id);
+          const bulkStatus = getBulkStatus(player.id);
+
+          return (
+            <button
+              key={player.id}
+              onClick={() => handleBulkStatusChange(player.id)}
+              className={clsx(
+                'flex items-center justify-center truncate rounded px-0.5 text-xs font-medium transition-all duration-150',
+                'hover:bg-gray-700 hover:text-white active:bg-gray-600',
+                'focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-950 focus:outline-none',
+                isBulkPending
+                  ? 'ring-opacity-75 bg-gray-800 text-blue-200 ring-2 ring-blue-400'
+                  : 'text-gray-300',
+                // Add subtle color hint based on bulk status
+                !isBulkPending && bulkStatus === 'ready' && 'text-emerald-300',
+                !isBulkPending &&
+                  bulkStatus === 'uncertain' &&
+                  'text-amber-300',
+                !isBulkPending && bulkStatus === 'unready' && 'text-red-300'
+              )}
+              title={`${player.name} - Click to set all times to ${getNextStatus(bulkStatus)}`}
+            >
+              {player.name}
+            </button>
+          );
+        })}
 
         {/* Time slots rows */}
         {allHours.map(hour => (
           <div key={hour} className="contents">
             {/* Time label */}
-            <div className="flex items-center justify-center text-xs font-medium text-gray-300">
+            <div className="flex items-center justify-center text-xs font-light text-gray-300">
               {hour}:00
             </div>
 
@@ -246,6 +386,7 @@ export function AvailabilityGrid({
             {playerAvailabilities.map(({ player }) => {
               const key = `${player.id}-${hour}`;
               const isPending = pendingUpdates.has(key);
+              const isBulkPending = bulkPendingPlayers.has(player.id);
 
               return (
                 <div key={key} className="flex items-center justify-center">
@@ -260,7 +401,7 @@ export function AvailabilityGrid({
                     }
                     className={clsx(
                       'w-full transition-all duration-150',
-                      isPending && 'ring-opacity-75 ring-2 ring-blue-400'
+                      (isPending || isBulkPending) && 'ring-opacity-75 ring-2 ring-blue-400'
                     )}
                   />
                 </div>
