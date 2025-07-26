@@ -34,9 +34,9 @@ export function NavigationButton({
       onClick={handleClick}
       className={clsx(
         'flex h-8 w-8 items-center justify-center rounded-full border',
-        'border-border-elevated bg-surface-elevated text-primary shadow-lg',
-        'transition-all duration-200 hover:bg-surface hover:shadow-xl',
-        'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-ring-offset'
+        'border-border-elevated bg-surface-elevated text-foreground-secondary shadow-lg',
+        'hover:bg-surface transition-all duration-200 hover:shadow-xl',
+        'focus:ring-ring focus:ring-offset-ring-offset focus:ring-2 focus:ring-offset-2 focus:outline-none'
       )}
       aria-label={direction === 'prev' ? 'Previous day' : 'Next day'}
     >

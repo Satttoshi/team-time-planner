@@ -94,9 +94,7 @@ export function BurgerMenu({ date, onDelete }: BurgerMenuProps) {
           <button
             className={clsx(
               'flex h-6 w-6 items-center justify-center rounded transition-colors',
-              'text-foreground-secondary hover:bg-surface-elevated hover:text-foreground',
-              'focus:bg-surface-elevated focus:text-foreground focus:outline-none',
-              'focus:ring-ring focus:ring-offset-ring-offset focus:ring-2 focus:ring-offset-2'
+              'text-foreground-secondary hover:bg-surface-elevated hover:text-foreground'
             )}
             title="Options"
             type="button"
