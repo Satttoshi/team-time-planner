@@ -38,7 +38,7 @@ export function PlannerClient({ initialData }: PlannerClientProps) {
 
       // Fallback: create empty availability for all players
       try {
-        const players = await getPlayers();
+        const players = await getPlayers(true); // Only active players for schedule grid
         const fallbackMap: Record<string, PlayerAvailability[]> = {};
 
         for (const date of dates) {

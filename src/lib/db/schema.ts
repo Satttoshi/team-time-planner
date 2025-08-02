@@ -12,6 +12,7 @@ export const players = pgTable('players', {
   name: text('name').notNull(),
   role: text('role', { enum: ['player', 'coach'] }).notNull().default('player'),
   sortOrder: integer('sort_order').notNull().default(1),
+  isActive: integer('is_active').notNull().default(1),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 

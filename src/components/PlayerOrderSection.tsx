@@ -99,7 +99,7 @@ export function PlayerOrderSection({ onPlayersReordered }: PlayerOrderSectionPro
   const loadPlayers = async () => {
     try {
       setIsLoading(true);
-      const playersData = await getPlayers();
+      const playersData = await getPlayers(true); // Only active players for reordering
       setPlayers(playersData);
     } catch (error) {
       console.error('Failed to load players:', error);

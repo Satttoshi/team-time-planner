@@ -11,8 +11,14 @@ import {
 import { eq, and, inArray } from 'drizzle-orm';
 import { sql } from 'drizzle-orm';
 
-export async function getPlayers(): Promise<Player[]> {
+export async function getPlayers(activeOnly: boolean = false): Promise<Player[]> {
   try {
+    if (activeOnly) {
+      return await db.select().from(players)
+        .where(eq(players.isActive, 1))
+        .orderBy(players.sortOrder);
+    }
+    
     return await db.select().from(players).orderBy(players.sortOrder);
   } catch (error) {
     console.error('Error fetching players:', error);
@@ -142,12 +148,12 @@ export async function seedPlayersIfNeeded(): Promise<void> {
 
     if (existingPlayers.length === 0) {
       const playerData = [
-        { name: 'Mirco', role: 'player' as const, sortOrder: 1 },
-        { name: 'Toby', role: 'player' as const, sortOrder: 2 },
-        { name: 'Tom', role: 'player' as const, sortOrder: 3 },
-        { name: 'Denis', role: 'player' as const, sortOrder: 4 },
-        { name: 'Josh', role: 'player' as const, sortOrder: 5 },
-        { name: 'Jannis', role: 'coach' as const, sortOrder: 6 },
+        { name: 'Mirco', role: 'player' as const, sortOrder: 1, isActive: 1 },
+        { name: 'Toby', role: 'player' as const, sortOrder: 2, isActive: 1 },
+        { name: 'Tom', role: 'player' as const, sortOrder: 3, isActive: 1 },
+        { name: 'Denis', role: 'player' as const, sortOrder: 4, isActive: 1 },
+        { name: 'Josh', role: 'player' as const, sortOrder: 5, isActive: 1 },
+        { name: 'Jannis', role: 'coach' as const, sortOrder: 6, isActive: 1 },
       ];
 
       for (const player of playerData) {
@@ -190,7 +196,7 @@ export async function getPlayerAvailabilityForDate(
   date: string
 ): Promise<PlayerAvailability[]> {
   try {
-    const allPlayers = await getPlayers();
+    const allPlayers = await getPlayers(true); // Only active players for schedule grid
     const availabilityRecords = await db
       .select()
       .from(availability)
@@ -218,7 +224,7 @@ export async function getAllPlayerAvailabilityForDates(
   dates: string[]
 ): Promise<Record<string, PlayerAvailability[]>> {
   try {
-    const allPlayers = await getPlayers();
+    const allPlayers = await getPlayers(true); // Only active players for schedule grid
     const availabilityRecords = await getAvailabilityForDates(dates);
 
     const result: Record<string, PlayerAvailability[]> = {};
@@ -273,5 +279,85 @@ export async function deleteDayData(date: string): Promise<void> {
   } catch (error) {
     console.error('Error deleting day data:', error);
     throw new Error('Failed to delete day data');
+  }
+}
+
+export async function updatePlayerDetails(
+  playerId: number,
+  name: string,
+  role: 'player' | 'coach'
+): Promise<void> {
+  try {
+    await db
+      .update(players)
+      .set({ name, role })
+      .where(eq(players.id, playerId));
+    console.log(`Updated player ${playerId} details`);
+  } catch (error) {
+    console.error('Error updating player details:', error);
+    throw new Error('Failed to update player details');
+  }
+}
+
+export async function togglePlayerActiveStatus(
+  playerId: number,
+  isActive: boolean
+): Promise<void> {
+  try {
+    // If activating a player, check if we would exceed 6 active players
+    if (isActive) {
+      const activePlayers = await db
+        .select({ id: players.id })
+        .from(players)
+        .where(eq(players.isActive, 1));
+      
+      if (activePlayers.length >= 6) {
+        throw new Error('Cannot activate player: Maximum of 6 active players allowed');
+      }
+    }
+    
+    await db
+      .update(players)
+      .set({ isActive: isActive ? 1 : 0 })
+      .where(eq(players.id, playerId));
+    console.log(`Updated player ${playerId} active status to ${isActive}`);
+  } catch (error) {
+    console.error('Error toggling player active status:', error);
+    throw error;
+  }
+}
+
+export async function deletePlayer(playerId: number): Promise<void> {
+  try {
+    // Note: This will cascade delete all availability records for this player
+    await db.delete(players).where(eq(players.id, playerId));
+    console.log(`Deleted player ${playerId}`);
+  } catch (error) {
+    console.error('Error deleting player:', error);
+    throw new Error('Failed to delete player');
+  }
+}
+
+export async function addNewPlayer(
+  name: string,
+  role: 'player' | 'coach' = 'player'
+): Promise<Player> {
+  try {
+    // Get the next sort order
+    const existingPlayers = await getPlayers();
+    const nextSortOrder = Math.max(...existingPlayers.map(p => p.sortOrder), 0) + 1;
+    
+    const [newPlayer] = await db.insert(players).values({
+      name,
+      role,
+      sortOrder: nextSortOrder,
+      isActive: 0, // New players start as inactive to avoid exceeding 6-player limit
+    }).returning();
+    
+    console.log(`Created new player: ${name}`);
+    return newPlayer;
+  } catch (error) {
+    console.error('Error adding new player:', error);
+    throw new Error('Failed to add new player');
   }
 }

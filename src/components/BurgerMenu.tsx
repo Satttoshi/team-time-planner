@@ -14,6 +14,7 @@ import { deleteDayData } from '@/lib/actions';
 import { useTheme } from 'next-themes';
 import { clsx } from 'clsx';
 import { PlayerOrderSection } from './PlayerOrderSection';
+import { PlayerManagementSection } from './PlayerManagementSection';
 
 interface BurgerMenuProps {
   date: string; // YYYY-MM-DD format
@@ -177,6 +178,11 @@ export function BurgerMenu({ date, onDelete, onPlayersReordered }: BurgerMenuPro
                   {/* Player Order */}
                   <div className="border-border border-b pb-3">
                     <PlayerOrderSection onPlayersReordered={onPlayersReordered} />
+                  </div>
+
+                  {/* Player Management */}
+                  <div className="border-border border-b pb-3">
+                    <PlayerManagementSection onPlayersChanged={onPlayersReordered} />
                   </div>
 
                   {/* Day Options */}
