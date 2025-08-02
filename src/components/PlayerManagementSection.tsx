@@ -2,20 +2,20 @@
 
 import { useState, useEffect } from 'react';
 import { clsx } from 'clsx';
-import { 
-  PlusIcon, 
-  Pencil1Icon, 
-  CheckIcon, 
+import {
+  PlusIcon,
+  Pencil1Icon,
+  CheckIcon,
   Cross2Icon,
   ReloadIcon,
-  TrashIcon
+  TrashIcon,
 } from '@radix-ui/react-icons';
-import { 
-  getPlayers, 
-  addNewPlayer, 
-  updatePlayerDetails, 
+import {
+  getPlayers,
+  addNewPlayer,
+  updatePlayerDetails,
   togglePlayerActiveStatus,
-  deletePlayer
+  deletePlayer,
 } from '@/lib/actions';
 import { type Player } from '@/lib/db/schema';
 
@@ -23,14 +23,24 @@ interface PlayerManagementSectionProps {
   onPlayersChanged?: () => void;
 }
 
-export function PlayerManagementSection({ onPlayersChanged }: PlayerManagementSectionProps) {
+export function PlayerManagementSection({
+  onPlayersChanged,
+}: PlayerManagementSectionProps) {
   const [players, setPlayers] = useState<Player[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editingPlayer, setEditingPlayer] = useState<number | null>(null);
-  const [editForm, setEditForm] = useState({ name: '', role: 'player' as 'player' | 'coach' });
+  const [editForm, setEditForm] = useState({
+    name: '',
+    role: 'player' as 'player' | 'coach',
+  });
   const [showAddForm, setShowAddForm] = useState(false);
-  const [newPlayerForm, setNewPlayerForm] = useState({ name: '', role: 'player' as 'player' | 'coach' });
-  const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({});
+  const [newPlayerForm, setNewPlayerForm] = useState({
+    name: '',
+    role: 'player' as 'player' | 'coach',
+  });
+  const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>(
+    {}
+  );
 
   useEffect(() => {
     loadPlayers();
@@ -64,12 +74,16 @@ export function PlayerManagementSection({ onPlayersChanged }: PlayerManagementSe
 
   const handleSaveEdit = async () => {
     if (!editingPlayer || !editForm.name.trim()) return;
-    
+
     const loadingKey = `edit-${editingPlayer}`;
     setLoadingState(loadingKey, true);
-    
+
     try {
-      await updatePlayerDetails(editingPlayer, editForm.name.trim(), editForm.role);
+      await updatePlayerDetails(
+        editingPlayer,
+        editForm.name.trim(),
+        editForm.role
+      );
       await loadPlayers();
       onPlayersChanged?.();
       setEditingPlayer(null);
@@ -83,7 +97,7 @@ export function PlayerManagementSection({ onPlayersChanged }: PlayerManagementSe
   const handleToggleActive = async (player: Player) => {
     const loadingKey = `toggle-${player.id}`;
     setLoadingState(loadingKey, true);
-    
+
     try {
       await togglePlayerActiveStatus(player.id, !player.isActive);
       await loadPlayers();
@@ -91,20 +105,28 @@ export function PlayerManagementSection({ onPlayersChanged }: PlayerManagementSe
     } catch (error) {
       console.error('Failed to toggle player status:', error);
       // Show error message to user since this could be due to 6-player limit
-      alert(error instanceof Error ? error.message : 'Failed to toggle player status');
+      alert(
+        error instanceof Error
+          ? error.message
+          : 'Failed to toggle player status'
+      );
     } finally {
       setLoadingState(loadingKey, false);
     }
   };
 
   const handleDelete = async (player: Player) => {
-    if (!confirm(`Are you sure you want to delete ${player.name}? This will permanently remove them and ALL their availability data. This action cannot be undone.`)) {
+    if (
+      !confirm(
+        `Are you sure you want to delete ${player.name}? This will permanently remove them and ALL their availability data. This action cannot be undone.`
+      )
+    ) {
       return;
     }
-    
+
     const loadingKey = `delete-${player.id}`;
     setLoadingState(loadingKey, true);
-    
+
     try {
       await deletePlayer(player.id);
       await loadPlayers();
@@ -119,9 +141,9 @@ export function PlayerManagementSection({ onPlayersChanged }: PlayerManagementSe
   const handleAddPlayer = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newPlayerForm.name.trim()) return;
-    
+
     setLoadingState('add-player', true);
-    
+
     try {
       await addNewPlayer(newPlayerForm.name.trim(), newPlayerForm.role);
       await loadPlayers();
@@ -138,7 +160,7 @@ export function PlayerManagementSection({ onPlayersChanged }: PlayerManagementSe
   if (isLoading) {
     return (
       <div className="animate-pulse">
-        <div className="bg-surface-elevated h-4 w-32 rounded mb-3" />
+        <div className="bg-surface-elevated mb-3 h-4 w-32 rounded" />
         <div className="space-y-2">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="bg-surface-elevated h-10 rounded" />
@@ -153,8 +175,10 @@ export function PlayerManagementSection({ onPlayersChanged }: PlayerManagementSe
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-foreground text-sm font-medium">Player Management</h3>
+      <div className="mb-3 flex items-center justify-between">
+        <h3 className="text-foreground text-sm font-medium">
+          Player Management
+        </h3>
         <span className="text-foreground-muted text-xs">
           {activePlayers.length}/6 active
         </span>
@@ -163,7 +187,9 @@ export function PlayerManagementSection({ onPlayersChanged }: PlayerManagementSe
       {/* Active Players */}
       {activePlayers.length > 0 && (
         <div className="mb-4">
-          <h4 className="text-foreground-secondary text-xs font-medium mb-2">Active Players</h4>
+          <h4 className="text-foreground-secondary mb-2 text-xs font-medium">
+            Active Players
+          </h4>
           <div className="space-y-1">
             {activePlayers.map(player => (
               <PlayerRow
@@ -187,7 +213,9 @@ export function PlayerManagementSection({ onPlayersChanged }: PlayerManagementSe
       {/* Inactive Players */}
       {inactivePlayers.length > 0 && (
         <div className="mb-4">
-          <h4 className="text-foreground-secondary text-xs font-medium mb-2">Inactive Players</h4>
+          <h4 className="text-foreground-secondary mb-2 text-xs font-medium">
+            Inactive Players
+          </h4>
           <div className="space-y-1">
             {inactivePlayers.map(player => (
               <PlayerRow
@@ -208,13 +236,12 @@ export function PlayerManagementSection({ onPlayersChanged }: PlayerManagementSe
         </div>
       )}
 
-
       {/* Add New Player */}
-      <div className="border-t border-border pt-3">
+      <div className="border-border border-t pt-3">
         {!showAddForm ? (
           <button
             className={clsx(
-              'flex items-center gap-2 w-full rounded px-3 py-2',
+              'flex w-full items-center gap-2 rounded px-3 py-2',
               'text-foreground-secondary text-sm font-medium transition-colors',
               'hover:bg-surface-elevated hover:text-foreground',
               'focus:bg-surface-elevated focus:text-foreground focus:outline-none'
@@ -231,32 +258,39 @@ export function PlayerManagementSection({ onPlayersChanged }: PlayerManagementSe
                 type="text"
                 placeholder="Player name"
                 value={newPlayerForm.name}
-                onChange={(e) => setNewPlayerForm(prev => ({ ...prev, name: e.target.value }))}
+                onChange={e =>
+                  setNewPlayerForm(prev => ({ ...prev, name: e.target.value }))
+                }
                 className={clsx(
                   'flex-1 rounded px-2 py-1 text-sm',
-                  'bg-surface border border-border text-foreground',
-                  'focus:outline-none focus:ring-1 focus:ring-ring'
+                  'bg-surface border-border text-foreground border',
+                  'focus:ring-ring focus:ring-1 focus:outline-none'
                 )}
                 autoFocus
               />
               <select
                 value={newPlayerForm.role}
-                onChange={(e) => setNewPlayerForm(prev => ({ ...prev, role: e.target.value as 'player' | 'coach' }))}
+                onChange={e =>
+                  setNewPlayerForm(prev => ({
+                    ...prev,
+                    role: e.target.value as 'player' | 'coach',
+                  }))
+                }
                 className={clsx(
                   'rounded px-2 py-1 text-sm',
-                  'bg-surface border border-border text-foreground',
-                  'focus:outline-none focus:ring-1 focus:ring-ring'
+                  'bg-surface border-border text-foreground border',
+                  'focus:ring-ring focus:ring-1 focus:outline-none'
                 )}
               >
                 <option value="player">Player</option>
                 <option value="coach">Coach</option>
               </select>
             </div>
-            <div className="flex gap-2 justify-end">
+            <div className="flex justify-end gap-2">
               <button
                 type="button"
                 className={clsx(
-                  'px-3 py-1 rounded text-xs transition-colors',
+                  'rounded px-3 py-1 text-xs transition-colors',
                   'text-foreground-secondary hover:bg-surface-elevated hover:text-foreground'
                 )}
                 onClick={() => {
@@ -268,11 +302,13 @@ export function PlayerManagementSection({ onPlayersChanged }: PlayerManagementSe
               </button>
               <button
                 type="submit"
-                disabled={!newPlayerForm.name.trim() || loadingStates['add-player']}
+                disabled={
+                  !newPlayerForm.name.trim() || loadingStates['add-player']
+                }
                 className={clsx(
-                  'px-3 py-1 rounded text-xs transition-colors',
+                  'rounded px-3 py-1 text-xs transition-colors',
                   'bg-primary text-white hover:brightness-110',
-                  'disabled:opacity-50 disabled:cursor-not-allowed'
+                  'disabled:cursor-not-allowed disabled:opacity-50'
                 )}
               >
                 {loadingStates['add-player'] ? 'Adding...' : 'Add Player'}
@@ -282,7 +318,7 @@ export function PlayerManagementSection({ onPlayersChanged }: PlayerManagementSe
         )}
       </div>
 
-      <p className="text-foreground-muted text-xs mt-2">
+      <p className="text-foreground-muted mt-2 text-xs">
         New players start as inactive. Maximum 6 active players allowed.
       </p>
     </div>
@@ -299,7 +335,9 @@ interface PlayerRowProps {
   onSaveEdit: () => void;
   onToggleActive: (player: Player) => void;
   onDelete: (player: Player) => void;
-  setEditForm: React.Dispatch<React.SetStateAction<{ name: string; role: 'player' | 'coach' }>>;
+  setEditForm: React.Dispatch<
+    React.SetStateAction<{ name: string; role: 'player' | 'coach' }>
+  >;
 }
 
 function PlayerRow({
@@ -312,41 +350,43 @@ function PlayerRow({
   onSaveEdit,
   onToggleActive,
   onDelete,
-  setEditForm
+  setEditForm,
 }: PlayerRowProps) {
   const isEditing = editingPlayer === player.id;
-  const isLoading = loadingStates[`edit-${player.id}`] || loadingStates[`toggle-${player.id}`] || 
-                   loadingStates[`delete-${player.id}`];
-
-  const getPlayerStatusChip = (player: Player) => {
-    if (player.isActive) {
-      return <span className="text-xs px-2 py-0.5 rounded-full bg-status-ready text-foreground">Active</span>;
-    }
-    return <span className="text-xs px-2 py-0.5 rounded-full bg-surface-elevated text-foreground-muted border border-border">Inactive</span>;
-  };
+  const isLoading =
+    loadingStates[`edit-${player.id}`] ||
+    loadingStates[`toggle-${player.id}`] ||
+    loadingStates[`delete-${player.id}`];
 
   if (isEditing) {
     return (
-      <div className="flex items-center gap-2 p-2 bg-surface-elevated rounded">
-        <div className="flex-1 flex gap-2">
+      <div className="bg-surface-elevated flex items-center gap-2 rounded pl-2">
+        <div className="flex flex-1 gap-2">
           <input
             type="text"
             value={editForm.name}
-            onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
+            onChange={e =>
+              setEditForm(prev => ({ ...prev, name: e.target.value }))
+            }
             className={clsx(
               'flex-1 rounded px-2 py-1 text-sm',
-              'bg-surface border border-border text-foreground',
-              'focus:outline-none focus:ring-1 focus:ring-ring'
+              'bg-surface border-border text-foreground border',
+              'focus:ring-ring focus:ring-1 focus:outline-none'
             )}
             autoFocus
           />
           <select
             value={editForm.role}
-            onChange={(e) => setEditForm(prev => ({ ...prev, role: e.target.value as 'player' | 'coach' }))}
+            onChange={e =>
+              setEditForm(prev => ({
+                ...prev,
+                role: e.target.value as 'player' | 'coach',
+              }))
+            }
             className={clsx(
               'rounded px-2 py-1 text-sm',
-              'bg-surface border border-border text-foreground',
-              'focus:outline-none focus:ring-1 focus:ring-ring'
+              'bg-surface border-border text-foreground border',
+              'focus:ring-ring focus:ring-1 focus:outline-none'
             )}
           >
             <option value="player">Player</option>
@@ -358,23 +398,23 @@ function PlayerRow({
             onClick={onSaveEdit}
             disabled={!editForm.name.trim() || isLoading}
             className={clsx(
-              'p-1 rounded transition-colors',
+              'rounded p-2 transition-colors',
               'text-status-ready hover:bg-status-ready hover:text-foreground',
-              'disabled:opacity-50 disabled:cursor-not-allowed'
+              'disabled:cursor-not-allowed disabled:opacity-50'
             )}
           >
-            <CheckIcon className="h-3 w-3" />
+            <CheckIcon className="h-4 w-4" />
           </button>
           <button
             onClick={onCancelEdit}
             disabled={isLoading}
             className={clsx(
-              'p-1 rounded transition-colors',
+              'rounded p-2 transition-colors',
               'text-foreground-secondary hover:bg-surface hover:text-foreground',
-              'disabled:opacity-50 disabled:cursor-not-allowed'
+              'disabled:cursor-not-allowed disabled:opacity-50'
             )}
           >
-            <Cross2Icon className="h-3 w-3" />
+            <Cross2Icon className="h-4 w-4" />
           </button>
         </div>
       </div>
@@ -382,28 +422,29 @@ function PlayerRow({
   }
 
   return (
-    <div className="flex items-center gap-2 p-2 bg-surface-elevated rounded">
-      <div className="flex-1 flex items-center gap-2">
-        <span className="text-foreground text-sm font-medium">{player.name}</span>
+    <div className="bg-surface-elevated flex items-center gap-2 rounded pl-2">
+      <div className="flex flex-1 items-center gap-2">
+        <span className="text-foreground text-sm font-medium">
+          {player.name}
+        </span>
         {player.role === 'coach' && (
           <span className="text-foreground-muted text-xs">Coach</span>
         )}
-        {getPlayerStatusChip(player)}
       </div>
-      
+
       <div className="flex gap-1">
         {/* Edit Button */}
         <button
           onClick={() => onStartEdit(player)}
           disabled={isLoading}
           className={clsx(
-            'p-1 rounded transition-colors',
+            'rounded p-2 transition-colors',
             'text-foreground-secondary hover:bg-surface hover:text-foreground',
-            'disabled:opacity-50 disabled:cursor-not-allowed'
+            'disabled:cursor-not-allowed disabled:opacity-50'
           )}
           title="Edit player"
         >
-          <Pencil1Icon className="h-3 w-3" />
+          <Pencil1Icon className="h-4 w-4" />
         </button>
 
         {/* Active/Inactive Toggle */}
@@ -411,18 +452,18 @@ function PlayerRow({
           onClick={() => onToggleActive(player)}
           disabled={isLoading}
           className={clsx(
-            'p-1 rounded transition-colors',
-            player.isActive 
-              ? 'text-status-uncertain hover:bg-status-uncertain hover:text-foreground' 
+            'rounded p-2 transition-colors',
+            player.isActive
+              ? 'text-status-uncertain hover:bg-status-uncertain hover:text-foreground'
               : 'text-status-ready hover:bg-status-ready hover:text-foreground',
-            'disabled:opacity-50 disabled:cursor-not-allowed'
+            'disabled:cursor-not-allowed disabled:opacity-50'
           )}
           title={player.isActive ? 'Set as inactive' : 'Set as active'}
         >
           {loadingStates[`toggle-${player.id}`] ? (
-            <div className="h-3 w-3 animate-spin rounded-full border border-current border-t-transparent" />
+            <div className="h-4 w-4 animate-spin rounded-full border border-current border-t-transparent" />
           ) : (
-            <ReloadIcon className="h-3 w-3" />
+            <ReloadIcon className="h-4 w-4" />
           )}
         </button>
 
@@ -431,16 +472,16 @@ function PlayerRow({
           onClick={() => onDelete(player)}
           disabled={isLoading}
           className={clsx(
-            'p-1 rounded transition-colors',
+            'rounded p-2 transition-colors',
             'text-status-unready hover:bg-status-unready hover:text-foreground',
-            'disabled:opacity-50 disabled:cursor-not-allowed'
+            'disabled:cursor-not-allowed disabled:opacity-50'
           )}
           title="Delete player"
         >
           {loadingStates[`delete-${player.id}`] ? (
-            <div className="h-3 w-3 animate-spin rounded-full border border-current border-t-transparent" />
+            <div className="h-4 w-4 animate-spin rounded-full border border-current border-t-transparent" />
           ) : (
-            <TrashIcon className="h-3 w-3" />
+            <TrashIcon className="h-4 w-4" />
           )}
         </button>
       </div>

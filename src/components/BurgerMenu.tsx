@@ -27,6 +27,7 @@ export function BurgerMenu({ date, onDelete, onPlayersReordered }: BurgerMenuPro
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const { theme, setTheme, resolvedTheme } = useTheme();
 
   useEffect(() => {
@@ -112,6 +113,7 @@ export function BurgerMenu({ date, onDelete, onPlayersReordered }: BurgerMenuPro
           <Dialog.Content
             className={clsx(
               'fixed top-1/2 left-1/2 z-50 w-[calc(100vw-16px)] max-w-md',
+              'max-h-[calc(100vh-32px)] overflow-y-auto',
               '-translate-x-1/2 -translate-y-1/2 rounded-lg p-6 shadow-lg',
               'bg-surface-elevated border-border-elevated border'
             )}
@@ -177,12 +179,20 @@ export function BurgerMenu({ date, onDelete, onPlayersReordered }: BurgerMenuPro
 
                   {/* Player Order */}
                   <div className="border-border border-b pb-3">
-                    <PlayerOrderSection onPlayersReordered={onPlayersReordered} />
+                    <PlayerOrderSection 
+                      onPlayersReordered={onPlayersReordered} 
+                      refreshTrigger={refreshTrigger}
+                    />
                   </div>
 
                   {/* Player Management */}
                   <div className="border-border border-b pb-3">
-                    <PlayerManagementSection onPlayersChanged={onPlayersReordered} />
+                    <PlayerManagementSection 
+                      onPlayersChanged={() => {
+                        setRefreshTrigger(prev => prev + 1);
+                        onPlayersReordered?.();
+                      }} 
+                    />
                   </div>
 
                   {/* Day Options */}

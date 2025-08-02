@@ -73,9 +73,10 @@ function SortablePlayerChip({ player, isDragging }: SortablePlayerChipProps) {
 
 interface PlayerOrderSectionProps {
   onPlayersReordered?: () => void;
+  refreshTrigger?: number; // Used to trigger refresh from parent
 }
 
-export function PlayerOrderSection({ onPlayersReordered }: PlayerOrderSectionProps) {
+export function PlayerOrderSection({ onPlayersReordered, refreshTrigger }: PlayerOrderSectionProps) {
   const [players, setPlayers] = useState<Player[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -94,7 +95,7 @@ export function PlayerOrderSection({ onPlayersReordered }: PlayerOrderSectionPro
 
   useEffect(() => {
     loadPlayers();
-  }, []);
+  }, [refreshTrigger]); // Reload when refreshTrigger changes
 
   const loadPlayers = async () => {
     try {
