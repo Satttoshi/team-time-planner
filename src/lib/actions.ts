@@ -156,23 +156,23 @@ export async function seedPlayersIfNeeded(): Promise<void> {
 
       console.log('Seeded database with default players');
     } else {
-      // Update existing players with correct roles and sort orders
+      // Update existing players with correct roles only (preserve user-defined sort orders)
       const playerUpdates = [
-        { name: 'Mirco', role: 'player' as const, sortOrder: 1 },
-        { name: 'Toby', role: 'player' as const, sortOrder: 2 },
-        { name: 'Tom', role: 'player' as const, sortOrder: 3 },
-        { name: 'Denis', role: 'player' as const, sortOrder: 4 },
-        { name: 'Josh', role: 'player' as const, sortOrder: 5 },
-        { name: 'Jannis', role: 'coach' as const, sortOrder: 6 },
+        { name: 'Mirco', role: 'player' as const },
+        { name: 'Toby', role: 'player' as const },
+        { name: 'Tom', role: 'player' as const },
+        { name: 'Denis', role: 'player' as const },
+        { name: 'Josh', role: 'player' as const },
+        { name: 'Jannis', role: 'coach' as const },
       ];
 
       for (const update of playerUpdates) {
         await db.update(players)
-          .set({ role: update.role, sortOrder: update.sortOrder })
+          .set({ role: update.role })
           .where(eq(players.name, update.name));
       }
 
-      console.log('Updated existing players with roles and sort orders');
+      console.log('Updated existing players with roles (preserved sort orders)');
     }
   } catch (error) {
     console.error('Error seeding players:', error);
@@ -246,6 +246,22 @@ export async function getAllPlayerAvailabilityForDates(
   } catch (error) {
     console.error('Error fetching player availability for dates:', error);
     throw new Error('Failed to fetch player availability for dates');
+  }
+}
+
+export async function updatePlayerSortOrder(playerIds: number[]): Promise<void> {
+  try {
+    // Update sort order for all players (Neon HTTP driver doesn't support transactions)
+    for (let i = 0; i < playerIds.length; i++) {
+      await db
+        .update(players)
+        .set({ sortOrder: i + 1 })
+        .where(eq(players.id, playerIds[i]));
+    }
+    console.log('Updated player sort order');
+  } catch (error) {
+    console.error('Error updating player sort order:', error);
+    throw new Error('Failed to update player sort order');
   }
 }
 

@@ -19,6 +19,7 @@ interface DayCardProps {
   playerAvailabilities: PlayerAvailability[];
   onUpdate?: () => void;
   onUserActivity?: (isActive: boolean) => void;
+  onPlayersReordered?: () => void;
   swiper: SwiperClass | null;
   canGoPrev: boolean;
   canGoNext: boolean;
@@ -30,6 +31,7 @@ export function DayCard({
   playerAvailabilities,
   onUpdate,
   onUserActivity,
+  onPlayersReordered,
   swiper,
   canGoPrev,
   canGoNext,
@@ -62,7 +64,11 @@ export function DayCard({
           <div className="flex flex-1 items-center justify-center">
             <div className="flex items-center gap-4">
               <h2 className="text-lg font-semibold">{displayDate}</h2>
-              <BurgerMenu date={dateString} onDelete={onUpdate} />
+              <BurgerMenu 
+                date={dateString} 
+                onDelete={onUpdate} 
+                onPlayersReordered={onPlayersReordered}
+              />
             </div>
           </div>
 

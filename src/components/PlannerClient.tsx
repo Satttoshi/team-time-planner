@@ -71,6 +71,7 @@ export function PlannerClient({ initialData }: PlannerClientProps) {
           playerAvailabilityMap={playerAvailabilityMap}
           onUpdate={loadAllData}
           onUserActivity={setIsUserActive}
+          onPlayersReordered={loadAllData}
         />
       </div>
     </main>

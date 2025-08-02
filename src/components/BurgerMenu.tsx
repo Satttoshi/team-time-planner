@@ -13,13 +13,15 @@ import {
 import { deleteDayData } from '@/lib/actions';
 import { useTheme } from 'next-themes';
 import { clsx } from 'clsx';
+import { PlayerOrderSection } from './PlayerOrderSection';
 
 interface BurgerMenuProps {
   date: string; // YYYY-MM-DD format
   onDelete?: () => void;
+  onPlayersReordered?: () => void;
 }
 
-export function BurgerMenu({ date, onDelete }: BurgerMenuProps) {
+export function BurgerMenu({ date, onDelete, onPlayersReordered }: BurgerMenuProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -170,6 +172,11 @@ export function BurgerMenu({ date, onDelete }: BurgerMenuProps) {
                             )
                           )}
                     </div>
+                  </div>
+
+                  {/* Player Order */}
+                  <div className="border-border border-b pb-3">
+                    <PlayerOrderSection onPlayersReordered={onPlayersReordered} />
                   </div>
 
                   {/* Day Options */}

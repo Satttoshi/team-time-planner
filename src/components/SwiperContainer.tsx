@@ -18,6 +18,7 @@ interface SwiperContainerProps {
   playerAvailabilityMap: Record<string, PlayerAvailability[]>;
   onUpdate?: () => void;
   onUserActivity?: (isActive: boolean) => void;
+  onPlayersReordered?: () => void;
 }
 
 export function SwiperContainer({
@@ -26,6 +27,7 @@ export function SwiperContainer({
   playerAvailabilityMap,
   onUpdate,
   onUserActivity,
+  onPlayersReordered,
 }: SwiperContainerProps) {
   const [swiperInstance, setSwiperInstance] = useState<SwiperClass | null>(
     null
@@ -83,6 +85,7 @@ export function SwiperContainer({
                   playerAvailabilities={playerAvailabilities}
                   onUpdate={onUpdate}
                   onUserActivity={onUserActivity}
+                  onPlayersReordered={onPlayersReordered}
                   swiper={swiperInstance}
                   canGoPrev={!navigationState.isBeginning}
                   canGoNext={!navigationState.isEnd}
