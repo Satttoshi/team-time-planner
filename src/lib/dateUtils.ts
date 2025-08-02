@@ -28,10 +28,11 @@ export function getTwoWeekWindow(
       dates.push(date);
     }
   } else {
-    // Friday-Sunday: Show last 3 days of current week and next 2 weeks (14 days)
+    // Friday-Sunday: Show 2 weeks ahead + following weekend (17 days)
+    // This unlocks the next weekend for planning when current weekend starts
     const startOfCurrentWeek = getStartOfWeek(today);
     const fridayOfCurrentWeek = startOfCurrentWeek.add({ days: 4 }); // Friday is the 5th day, index 4
-    for (let i = 0; i < 14; i++) {
+    for (let i = 0; i < 17; i++) {
       const date = fridayOfCurrentWeek.add({ days: i });
       dates.push(date);
     }
