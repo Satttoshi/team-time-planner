@@ -9,7 +9,9 @@ import {
   Cross2Icon,
   ReloadIcon,
   TrashIcon,
+  ExclamationTriangleIcon,
 } from '@radix-ui/react-icons';
+import * as Dialog from '@radix-ui/react-dialog';
 import {
   getPlayers,
   addNewPlayer,
@@ -41,6 +43,12 @@ export function PlayerManagementSection({
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>(
     {}
   );
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    player: Player;
+    isOpen: boolean;
+  } | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [isErrorVisible, setIsErrorVisible] = useState<boolean>(false);
 
   useEffect(() => {
     loadPlayers();
@@ -97,6 +105,7 @@ export function PlayerManagementSection({
   const handleToggleActive = async (player: Player) => {
     const loadingKey = `toggle-${player.id}`;
     setLoadingState(loadingKey, true);
+    setErrorMessage(''); // Clear any existing error
 
     try {
       await togglePlayerActiveStatus(player.id, !player.isActive);
@@ -104,26 +113,39 @@ export function PlayerManagementSection({
       onPlayersChanged?.();
     } catch (error) {
       console.error('Failed to toggle player status:', error);
-      // Show error message to user since this could be due to 6-player limit
-      alert(
+      // Show inline error message instead of alert
+      const message =
         error instanceof Error
           ? error.message
-          : 'Failed to toggle player status'
-      );
+          : 'Failed to toggle player status';
+
+      setErrorMessage(message);
+      // Start with invisible state, then fade in
+      setIsErrorVisible(false);
+
+      // Fade in after a small delay to ensure DOM is updated
+      setTimeout(() => setIsErrorVisible(true), 50);
+
+      // Auto-hide error after 4 seconds with fade transition
+      setTimeout(() => {
+        setIsErrorVisible(false);
+        // Remove message after fade completes
+        setTimeout(() => setErrorMessage(''), 300);
+      }, 4000);
     } finally {
       setLoadingState(loadingKey, false);
     }
   };
 
   const handleDelete = async (player: Player) => {
-    if (
-      !confirm(
-        `Are you sure you want to delete ${player.name}? This will permanently remove them and ALL their availability data. This action cannot be undone.`
-      )
-    ) {
-      return;
-    }
+    // Show confirmation dialog instead of browser confirm
+    setDeleteConfirm({ player, isOpen: true });
+  };
 
+  const confirmDelete = async () => {
+    if (!deleteConfirm?.player) return;
+
+    const player = deleteConfirm.player;
     const loadingKey = `delete-${player.id}`;
     setLoadingState(loadingKey, true);
 
@@ -131,8 +153,23 @@ export function PlayerManagementSection({
       await deletePlayer(player.id);
       await loadPlayers();
       onPlayersChanged?.();
+      setDeleteConfirm(null);
     } catch (error) {
       console.error('Failed to delete player:', error);
+
+      setErrorMessage('Failed to delete player. Please try again.');
+      // Start with invisible state, then fade in
+      setIsErrorVisible(false);
+
+      // Fade in after a small delay to ensure DOM is updated
+      setTimeout(() => setIsErrorVisible(true), 50);
+
+      // Auto-hide error after 4 seconds with fade transition
+      setTimeout(() => {
+        setIsErrorVisible(false);
+        // Remove message after fade completes
+        setTimeout(() => setErrorMessage(''), 300);
+      }, 4000);
     } finally {
       setLoadingState(loadingKey, false);
     }
@@ -207,6 +244,24 @@ export function PlayerManagementSection({
               />
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Error Message Banner - positioned above inactive players */}
+      {errorMessage && (
+        <div
+          className={clsx(
+            'bg-status-unready/10 border-status-unready/20 mb-3 flex items-center gap-2 rounded-md border p-3',
+            'transition-all duration-300 ease-in-out',
+            isErrorVisible
+              ? 'translate-y-0 transform opacity-100'
+              : '-translate-y-2 transform opacity-0'
+          )}
+        >
+          <ExclamationTriangleIcon className="text-status-unready h-4 w-4 shrink-0" />
+          <p className="text-status-unready text-sm font-medium">
+            {errorMessage}
+          </p>
         </div>
       )}
 
@@ -325,6 +380,82 @@ export function PlayerManagementSection({
       <p className="text-foreground-muted mt-2 text-xs">
         New players start as inactive. Maximum 6 active players allowed.
       </p>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog.Root
+        open={deleteConfirm?.isOpen || false}
+        onOpenChange={open => {
+          if (!open) setDeleteConfirm(null);
+        }}
+      >
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 z-50 bg-black/50" />
+          <Dialog.Content
+            className={clsx(
+              'fixed top-1/2 left-1/2 z-50 w-[calc(100vw-32px)] max-w-md',
+              '-translate-x-1/2 -translate-y-1/2 rounded-lg p-6 shadow-lg',
+              'bg-surface-elevated border-border-elevated border'
+            )}
+          >
+            <Dialog.Title className="text-foreground mb-2 text-lg font-semibold">
+              Delete Player
+            </Dialog.Title>
+
+            <Dialog.Description className="text-foreground-secondary mb-4 text-sm">
+              Are you sure you want to delete{' '}
+              <strong>{deleteConfirm?.player?.name}</strong>? This will
+              permanently remove them and ALL their availability data. This
+              action cannot be undone.
+            </Dialog.Description>
+
+            <div className="flex justify-end gap-3">
+              <button
+                className={clsx(
+                  'rounded px-4 py-2 text-sm font-medium transition-colors focus:outline-none',
+                  'text-foreground-secondary hover:bg-surface-elevated hover:text-foreground',
+                  'focus:bg-surface-elevated focus:text-foreground'
+                )}
+                onClick={() => setDeleteConfirm(null)}
+              >
+                Cancel
+              </button>
+              <button
+                className={clsx(
+                  'flex items-center gap-2 rounded px-4 py-2 text-sm font-medium transition-colors focus:outline-none',
+                  'bg-status-unready-bg text-foreground hover:brightness-110 focus:brightness-110'
+                )}
+                onClick={confirmDelete}
+                disabled={loadingStates[`delete-${deleteConfirm?.player?.id}`]}
+              >
+                {loadingStates[`delete-${deleteConfirm?.player?.id}`] ? (
+                  <>
+                    <div className="h-3 w-3 animate-spin rounded-full border border-current border-t-transparent" />
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <TrashIcon className="h-3 w-3" />
+                    Yes, Delete
+                  </>
+                )}
+              </button>
+            </div>
+
+            <Dialog.Close asChild>
+              <button
+                className={clsx(
+                  'absolute top-4 right-4 rounded p-1 transition-colors focus:outline-none',
+                  'text-foreground-muted hover:bg-surface-elevated hover:text-foreground-secondary',
+                  'focus:bg-surface-elevated focus:text-foreground-secondary'
+                )}
+                aria-label="Close"
+              >
+                <Cross2Icon className="h-4 w-4" />
+              </button>
+            </Dialog.Close>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </div>
   );
 }
@@ -463,8 +594,8 @@ function PlayerRow({
           className={clsx(
             'rounded p-2 transition-colors',
             player.isActive
-              ? 'text-status-uncertain hover:bg-status-uncertain hover:text-foreground'
-              : 'text-status-ready hover:bg-status-ready hover:text-foreground',
+              ? 'text-status-uncertain hover:bg-status-uncertain-bg'
+              : 'text-status-ready hover:bg-status-ready-bg',
             'disabled:cursor-not-allowed disabled:opacity-50'
           )}
           title={player.isActive ? 'Set as inactive' : 'Set as active'}
@@ -482,7 +613,7 @@ function PlayerRow({
           disabled={isLoading}
           className={clsx(
             'rounded p-2 transition-colors',
-            'text-status-unready hover:bg-status-unready hover:text-foreground',
+            'text-status-unready hover:bg-status-unready-bg',
             'disabled:cursor-not-allowed disabled:opacity-50'
           )}
           title="Delete player"
