@@ -255,6 +255,8 @@ export function PlayerManagementSection({
           <form onSubmit={handleAddPlayer} className="space-y-2">
             <div className="flex gap-2">
               <input
+                id="add-player-name"
+                name="add-player-name"
                 type="text"
                 placeholder="Player name"
                 value={newPlayerForm.name}
@@ -262,13 +264,15 @@ export function PlayerManagementSection({
                   setNewPlayerForm(prev => ({ ...prev, name: e.target.value }))
                 }
                 className={clsx(
-                  'flex-1 rounded px-2 py-1 text-sm',
+                  'min-w-0 flex-1 rounded px-2 py-1 text-sm',
                   'bg-surface border-border text-foreground border',
                   'focus:ring-ring focus:ring-1 focus:outline-none'
                 )}
                 autoFocus
               />
               <select
+                id="add-player-role"
+                name="add-player-role"
                 value={newPlayerForm.role}
                 onChange={e =>
                   setNewPlayerForm(prev => ({
@@ -277,7 +281,7 @@ export function PlayerManagementSection({
                   }))
                 }
                 className={clsx(
-                  'rounded px-2 py-1 text-sm',
+                  'w-20 shrink-0 rounded px-2 py-1 text-sm',
                   'bg-surface border-border text-foreground border',
                   'focus:ring-ring focus:ring-1 focus:outline-none'
                 )}
@@ -361,39 +365,42 @@ function PlayerRow({
   if (isEditing) {
     return (
       <div className="bg-surface-elevated flex items-center gap-2 rounded pl-2">
-        <div className="flex flex-1 gap-2">
-          <input
-            type="text"
-            value={editForm.name}
-            onChange={e =>
-              setEditForm(prev => ({ ...prev, name: e.target.value }))
-            }
-            className={clsx(
-              'flex-1 rounded px-2 py-1 text-sm',
-              'bg-surface border-border text-foreground border',
-              'focus:ring-ring focus:ring-1 focus:outline-none'
-            )}
-            autoFocus
-          />
-          <select
-            value={editForm.role}
-            onChange={e =>
-              setEditForm(prev => ({
-                ...prev,
-                role: e.target.value as 'player' | 'coach',
-              }))
-            }
-            className={clsx(
-              'rounded px-2 py-1 text-sm',
-              'bg-surface border-border text-foreground border',
-              'focus:ring-ring focus:ring-1 focus:outline-none'
-            )}
-          >
-            <option value="player">Player</option>
-            <option value="coach">Coach</option>
-          </select>
-        </div>
-        <div className="flex gap-1">
+        <input
+          id={`edit-name-${player.id}`}
+          name={`edit-name-${player.id}`}
+          type="text"
+          value={editForm.name}
+          onChange={e =>
+            setEditForm(prev => ({ ...prev, name: e.target.value }))
+          }
+          className={clsx(
+            'min-w-0 flex-1 rounded px-2 py-1 text-sm',
+            'bg-surface border-border text-foreground border',
+            'focus:ring-ring focus:ring-1 focus:outline-none'
+          )}
+          autoFocus
+          placeholder="Name"
+        />
+        <select
+          id={`edit-role-${player.id}`}
+          name={`edit-role-${player.id}`}
+          value={editForm.role}
+          onChange={e =>
+            setEditForm(prev => ({
+              ...prev,
+              role: e.target.value as 'player' | 'coach',
+            }))
+          }
+          className={clsx(
+            'w-20 rounded px-2 py-1 text-sm',
+            'bg-surface border-border text-foreground border',
+            'focus:ring-ring focus:ring-1 focus:outline-none'
+          )}
+        >
+          <option value="player">Player</option>
+          <option value="coach">Coach</option>
+        </select>
+        <div className="flex shrink-0 gap-1">
           <button
             onClick={onSaveEdit}
             disabled={!editForm.name.trim() || isLoading}
@@ -402,6 +409,7 @@ function PlayerRow({
               'text-status-ready hover:bg-status-ready hover:text-foreground',
               'disabled:cursor-not-allowed disabled:opacity-50'
             )}
+            title="Save changes"
           >
             <CheckIcon className="h-4 w-4" />
           </button>
@@ -413,6 +421,7 @@ function PlayerRow({
               'text-foreground-secondary hover:bg-surface hover:text-foreground',
               'disabled:cursor-not-allowed disabled:opacity-50'
             )}
+            title="Cancel edit"
           >
             <Cross2Icon className="h-4 w-4" />
           </button>
