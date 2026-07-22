@@ -34,9 +34,9 @@ export function GridHeader({
           onClick={onAddEarlyHour}
           className={clsx(
             'flex h-5 w-5 items-center justify-center rounded-full',
-            'bg-surface-elevated font-semibold text-foreground-secondary transition-colors',
+            'bg-surface-elevated text-foreground-secondary font-semibold transition-colors',
             'hover:bg-surface hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50',
-            'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-ring-offset'
+            'focus:ring-ring focus:ring-offset-ring-offset focus:ring-2 focus:ring-offset-2 focus:outline-none'
           )}
           title="Add earlier time slot"
           disabled={!canAddEarlyHour}
@@ -48,7 +48,12 @@ export function GridHeader({
       {/* Player header cells */}
       {playerAvailabilities.map(({ player }) => {
         const isBulkPending = bulkPendingPlayers.has(player.id);
-        const bulkStatus = getBulkStatus(player.id, allHours, optimisticData, playerAvailabilities);
+        const bulkStatus = getBulkStatus(
+          player.id,
+          allHours,
+          optimisticData,
+          playerAvailabilities
+        );
 
         return (
           <button
@@ -58,11 +63,11 @@ export function GridHeader({
               'flex items-center justify-center truncate rounded px-0.5',
               'text-xs font-medium transition-all duration-150',
               'hover:bg-surface-elevated hover:text-foreground active:bg-surface',
-              'focus:outline-none focus:ring-2 focus:ring-ring',
-              'focus:ring-offset-2 focus:ring-offset-ring-offset',
+              'focus:ring-ring focus:ring-2 focus:outline-none',
+              'focus:ring-offset-ring-offset focus:ring-offset-2',
               isBulkPending
                 ? clsx(
-                    'bg-surface-elevated text-primary ring-2 ring-primary',
+                    'bg-surface-elevated text-primary ring-primary ring-2',
                     'ring-opacity-75'
                   )
                 : 'text-foreground-secondary',
@@ -71,7 +76,9 @@ export function GridHeader({
               !isBulkPending &&
                 bulkStatus === 'uncertain' &&
                 'text-status-uncertain',
-              !isBulkPending && bulkStatus === 'unready' && 'text-status-unready'
+              !isBulkPending &&
+                bulkStatus === 'unready' &&
+                'text-status-unready'
             )}
             title={`${player.name} - Click to set all times to ${getNextStatus(
               bulkStatus

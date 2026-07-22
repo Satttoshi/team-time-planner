@@ -12,7 +12,11 @@ interface TimeSlotRowProps {
   optimisticData: Record<string, AvailabilityStatus>;
   pendingUpdates: Set<string>;
   bulkPendingPlayers: Set<number>;
-  onStatusChange: (playerId: number, hour: string, currentStatus: AvailabilityStatus) => void;
+  onStatusChange: (
+    playerId: number,
+    hour: string,
+    currentStatus: AvailabilityStatus
+  ) => void;
 }
 
 export function TimeSlotRow({
@@ -26,7 +30,7 @@ export function TimeSlotRow({
   return (
     <div key={hour} className="contents">
       {/* Time label */}
-      <div className="flex items-center justify-center text-xs font-light text-foreground-secondary">
+      <div className="text-foreground-secondary flex items-center justify-center text-xs font-light">
         {hour}:00
       </div>
 
@@ -35,7 +39,12 @@ export function TimeSlotRow({
         const key = `${player.id}-${hour}`;
         const isPending = pendingUpdates.has(key);
         const isBulkPending = bulkPendingPlayers.has(player.id);
-        const currentStatus = getStatus(player.id, hour, optimisticData, playerAvailabilities);
+        const currentStatus = getStatus(
+          player.id,
+          hour,
+          optimisticData,
+          playerAvailabilities
+        );
 
         return (
           <div key={key} className="flex items-center justify-center">
@@ -45,7 +54,7 @@ export function TimeSlotRow({
               className={clsx(
                 'w-full transition-all duration-150',
                 (isPending || isBulkPending) &&
-                  'ring-opacity-75 ring-2 ring-primary'
+                  'ring-opacity-75 ring-primary ring-2'
               )}
             />
           </div>

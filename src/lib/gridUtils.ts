@@ -35,9 +35,7 @@ export function getStatus(
   if (optimistic) return optimistic;
 
   // Fallback to server data
-  const playerData = playerAvailabilities.find(
-    pa => pa.player.id === playerId
-  );
+  const playerData = playerAvailabilities.find(pa => pa.player.id === playerId);
   return playerData?.availability[hour] || 'unknown';
 }
 
@@ -58,7 +56,12 @@ export function getBulkStatus(
   };
 
   allHours.forEach(hour => {
-    const status = getStatus(playerId, hour, optimisticData, playerAvailabilities);
+    const status = getStatus(
+      playerId,
+      hour,
+      optimisticData,
+      playerAvailabilities
+    );
     statusCounts[status]++;
   });
 

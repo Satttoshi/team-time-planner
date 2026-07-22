@@ -21,8 +21,10 @@ export interface UseGridStateOptions {
 export function useGridState({ onUserActivity }: UseGridStateOptions = {}) {
   const [additionalHours, setAdditionalHours] = useState<string[]>([]);
   const [pendingUpdates, setPendingUpdates] = useState<Set<string>>(new Set());
-  const [bulkPendingPlayers, setBulkPendingPlayers] = useState<Set<number>>(new Set());
-  
+  const [bulkPendingPlayers, setBulkPendingPlayers] = useState<Set<number>>(
+    new Set()
+  );
+
   const userActiveRef = useRef(false);
   const activityTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -40,39 +42,42 @@ export function useGridState({ onUserActivity }: UseGridStateOptions = {}) {
     }
   }, []);
 
-  const setUserActive = useCallback((isActive: boolean) => {
-    userActiveRef.current = isActive;
-    
-    if (isActive) {
-      onUserActivity?.(true);
-      
-      // Reset activity timeout
-      if (activityTimeoutRef.current) {
-        clearTimeout(activityTimeoutRef.current);
-      }
-      activityTimeoutRef.current = setTimeout(() => {
-        userActiveRef.current = false;
+  const setUserActive = useCallback(
+    (isActive: boolean) => {
+      userActiveRef.current = isActive;
+
+      if (isActive) {
+        onUserActivity?.(true);
+
+        // Reset activity timeout
+        if (activityTimeoutRef.current) {
+          clearTimeout(activityTimeoutRef.current);
+        }
+        activityTimeoutRef.current = setTimeout(() => {
+          userActiveRef.current = false;
+          onUserActivity?.(false);
+        }, 2000);
+      } else {
         onUserActivity?.(false);
-      }, 2000);
-    } else {
-      onUserActivity?.(false);
-      if (activityTimeoutRef.current) {
-        clearTimeout(activityTimeoutRef.current);
-        activityTimeoutRef.current = null;
+        if (activityTimeoutRef.current) {
+          clearTimeout(activityTimeoutRef.current);
+          activityTimeoutRef.current = null;
+        }
       }
-    }
-  }, [onUserActivity]);
+    },
+    [onUserActivity]
+  );
 
   const clearState = useCallback(() => {
     setAdditionalHours([]);
     setPendingUpdates(new Set());
     setBulkPendingPlayers(new Set());
-    
+
     if (activityTimeoutRef.current) {
       clearTimeout(activityTimeoutRef.current);
       activityTimeoutRef.current = null;
     }
-    
+
     userActiveRef.current = false;
     onUserActivity?.(false);
   }, [onUserActivity]);

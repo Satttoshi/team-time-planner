@@ -11,14 +11,18 @@ import {
 import { eq, and, inArray } from 'drizzle-orm';
 import { sql } from 'drizzle-orm';
 
-export async function getPlayers(activeOnly: boolean = false): Promise<Player[]> {
+export async function getPlayers(
+  activeOnly: boolean = false
+): Promise<Player[]> {
   try {
     if (activeOnly) {
-      return await db.select().from(players)
+      return await db
+        .select()
+        .from(players)
         .where(eq(players.isActive, 1))
         .orderBy(players.sortOrder);
     }
-    
+
     return await db.select().from(players).orderBy(players.sortOrder);
   } catch (error) {
     console.error('Error fetching players:', error);
@@ -173,12 +177,15 @@ export async function seedPlayersIfNeeded(): Promise<void> {
       ];
 
       for (const update of playerUpdates) {
-        await db.update(players)
+        await db
+          .update(players)
           .set({ role: update.role })
           .where(eq(players.name, update.name));
       }
 
-      console.log('Updated existing players with roles (preserved sort orders)');
+      console.log(
+        'Updated existing players with roles (preserved sort orders)'
+      );
     }
   } catch (error) {
     console.error('Error seeding players:', error);
@@ -255,7 +262,9 @@ export async function getAllPlayerAvailabilityForDates(
   }
 }
 
-export async function updatePlayerSortOrder(playerIds: number[]): Promise<void> {
+export async function updatePlayerSortOrder(
+  playerIds: number[]
+): Promise<void> {
   try {
     // Update sort order for all players (Neon HTTP driver doesn't support transactions)
     for (let i = 0; i < playerIds.length; i++) {
@@ -310,12 +319,14 @@ export async function togglePlayerActiveStatus(
         .select({ id: players.id })
         .from(players)
         .where(eq(players.isActive, 1));
-      
+
       if (activePlayers.length >= 6) {
-        throw new Error('Cannot activate player: Maximum of 6 active players allowed');
+        throw new Error(
+          'Cannot activate player: Maximum of 6 active players allowed'
+        );
       }
     }
-    
+
     await db
       .update(players)
       .set({ isActive: isActive ? 1 : 0 })
@@ -345,15 +356,19 @@ export async function addNewPlayer(
   try {
     // Get the next sort order
     const existingPlayers = await getPlayers();
-    const nextSortOrder = Math.max(...existingPlayers.map(p => p.sortOrder), 0) + 1;
-    
-    const [newPlayer] = await db.insert(players).values({
-      name,
-      role,
-      sortOrder: nextSortOrder,
-      isActive: 0, // New players start as inactive to avoid exceeding 6-player limit
-    }).returning();
-    
+    const nextSortOrder =
+      Math.max(...existingPlayers.map(p => p.sortOrder), 0) + 1;
+
+    const [newPlayer] = await db
+      .insert(players)
+      .values({
+        name,
+        role,
+        sortOrder: nextSortOrder,
+        isActive: 0, // New players start as inactive to avoid exceeding 6-player limit
+      })
+      .returning();
+
     console.log(`Created new player: ${name}`);
     return newPlayer;
   } catch (error) {

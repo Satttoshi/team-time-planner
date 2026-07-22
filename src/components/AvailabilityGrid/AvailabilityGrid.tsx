@@ -37,35 +37,28 @@ export function AvailabilityGrid({
   } = useGridState({ onUserActivity });
 
   // Initialize update queue
-  const {
-    updateQueueRef,
-    bulkUpdateQueueRef,
-    queueUpdate,
-    queueBulkUpdate,
-  } = useUpdateQueue({
-    onPendingUpdatesChange: setPendingUpdates,
-    onBulkPendingPlayersChange: setBulkPendingPlayers,
-  });
+  const { updateQueueRef, bulkUpdateQueueRef, queueUpdate, queueBulkUpdate } =
+    useUpdateQueue({
+      onPendingUpdatesChange: setPendingUpdates,
+      onBulkPendingPlayersChange: setBulkPendingPlayers,
+    });
 
   // Get all hours that have any data
   const allHours = getAllHours(additionalHours, playerAvailabilities);
 
   // Initialize optimistic updates
-  const {
-    optimisticData,
-    applyOptimisticUpdate,
-    applyBulkOptimisticUpdate,
-  } = useOptimisticUpdates({
-    playerAvailabilities,
-    pendingUpdates,
-    bulkPendingPlayers,
-    hasHandledDelete: false,
-    userActiveRef,
-    onUserActivity,
-    activityTimeoutRef,
-    updateQueueRef,
-    bulkUpdateQueueRef,
-  });
+  const { optimisticData, applyOptimisticUpdate, applyBulkOptimisticUpdate } =
+    useOptimisticUpdates({
+      playerAvailabilities,
+      pendingUpdates,
+      bulkPendingPlayers,
+      hasHandledDelete: false,
+      userActiveRef,
+      onUserActivity,
+      activityTimeoutRef,
+      updateQueueRef,
+      bulkUpdateQueueRef,
+    });
 
   const handleStatusChange = (
     playerId: number,
@@ -86,7 +79,12 @@ export function AvailabilityGrid({
   };
 
   const handleBulkStatusChange = (playerId: number) => {
-    const currentBulkStatus = getBulkStatus(playerId, allHours, optimisticData, playerAvailabilities);
+    const currentBulkStatus = getBulkStatus(
+      playerId,
+      allHours,
+      optimisticData,
+      playerAvailabilities
+    );
     const newStatus = getNextStatus(currentBulkStatus);
 
     // Mark user as actively editing
