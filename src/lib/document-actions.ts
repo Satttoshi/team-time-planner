@@ -80,6 +80,62 @@ export async function deleteMatchDocument(id: string): Promise<void> {
   }
 }
 
+// Images removed from a document leave their blobs behind — collect the
+// pathnames still referenced in the content and delete the rest. Blobs
+// younger than an hour are kept so in-flight uploads and recent undos
+// are never destroyed.
+const ORPHAN_MIN_AGE_MS = 60 * 60 * 1000;
+
+function collectReferencedBlobPathnames(content: unknown): Set<string> {
+  const pathnames = new Set<string>();
+
+  const walk = (node: unknown): void => {
+    if (!node || typeof node !== 'object') return;
+    const { type, attrs, content: children } = node as {
+      type?: string;
+      attrs?: { src?: string };
+      content?: unknown[];
+    };
+
+    if (type === 'image' && typeof attrs?.src === 'string') {
+      const pathname = new URLSearchParams(
+        attrs.src.split('?')[1] ?? ''
+      ).get('pathname');
+      if (pathname) pathnames.add(pathname);
+    }
+
+    children?.forEach(walk);
+  };
+
+  walk(content);
+  return pathnames;
+}
+
+export async function cleanupOrphanedBlobs(id: string): Promise<void> {
+  try {
+    if (!process.env.BLOB_READ_WRITE_TOKEN) return;
+
+    const document = await getMatchDocument(id);
+    if (!document) return;
+
+    const referenced = collectReferencedBlobPathnames(document.content);
+    const { blobs } = await list({ prefix: `match-docs/${id}/` });
+    const now = Date.now();
+
+    const orphaned = blobs.filter(
+      blob =>
+        !referenced.has(blob.pathname) &&
+        now - new Date(blob.uploadedAt).getTime() > ORPHAN_MIN_AGE_MS
+    );
+
+    if (orphaned.length > 0) {
+      await del(orphaned.map(blob => blob.url));
+    }
+  } catch (error) {
+    console.error('Error cleaning up orphaned blobs:', error);
+  }
+}
+
 export async function getMatchDocument(
   id: string
 ): Promise<MatchDocument | null> {

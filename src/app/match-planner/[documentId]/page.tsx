@@ -1,5 +1,9 @@
 import { notFound } from 'next/navigation';
-import { getMatchDocument } from '@/lib/document-actions';
+import { after } from 'next/server';
+import {
+  cleanupOrphanedBlobs,
+  getMatchDocument,
+} from '@/lib/document-actions';
 import { MatchDocumentClient } from '@/components/match-planner/MatchDocumentClient';
 
 export const dynamic = 'force-dynamic';
@@ -23,6 +27,10 @@ export default async function MatchDocumentPage({
   if (!document) {
     notFound();
   }
+
+  // Garbage-collect blobs of images that were removed from the document,
+  // after the response is sent so page load isn't delayed
+  after(() => cleanupOrphanedBlobs(documentId));
 
   return <MatchDocumentClient initialDocument={document} />;
 }
