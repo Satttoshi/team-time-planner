@@ -21,6 +21,43 @@ const ALLOWED_IMAGE_TYPES = [
   'image/webp',
 ];
 
+// The stock resizable node view never re-applies a changed src to its <img>
+// (its update() only tracks size), which breaks swapping the blob: preview
+// URL for the stored URL after upload — so sync src/alt into the DOM here.
+const ResizableImage = Image.extend({
+  addNodeView() {
+    const createParentView = this.parent?.();
+    if (!createParentView) return null;
+    return props => {
+      const view = createParentView(props);
+      if (!view || typeof view !== 'object' || !('dom' in view)) return view;
+      const originalUpdate = view.update?.bind(view);
+      view.update = (node, decorations, innerDecorations) => {
+        const handled = originalUpdate
+          ? originalUpdate(node, decorations, innerDecorations)
+          : true;
+        if (handled && view.dom instanceof HTMLElement) {
+          const img = view.dom.querySelector('img');
+          if (
+            img &&
+            typeof node.attrs.src === 'string' &&
+            img.getAttribute('src') !== node.attrs.src
+          ) {
+            img.setAttribute('src', node.attrs.src);
+            if (node.attrs.alt) {
+              img.setAttribute('alt', node.attrs.alt);
+            } else {
+              img.removeAttribute('alt');
+            }
+          }
+        }
+        return handled;
+      };
+      return view;
+    };
+  },
+});
+
 interface DocumentEditorProps {
   documentId: string;
   initialContent: JSONContent | null;
@@ -141,7 +178,15 @@ export function DocumentEditor({
       }),
       TextStyle,
       Color,
-      Image,
+      ResizableImage.configure({
+        resize: {
+          enabled: true,
+          directions: ['bottom-left', 'bottom-right'],
+          minWidth: 80,
+          minHeight: 45,
+          alwaysPreserveAspectRatio: true,
+        },
+      }),
       FileHandler.configure({
         allowedMimeTypes: ALLOWED_IMAGE_TYPES,
         onPaste: (pasteEditor, files) => {

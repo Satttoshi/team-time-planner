@@ -222,12 +222,69 @@
 
 .prose-doc img {
   border-radius: 0.5rem;
-  height: auto;
+  /* !important: resize commits write an inline pixel height; when max-width
+     caps the width on small screens, that height would distort the image */
+  height: auto !important;
   max-width: 100%;
 }
 
 .prose-doc img.ProseMirror-selectednode {
   outline: 2px solid var(--color-ring);
+}
+
+/* Resizable images: Tiptap wraps them in [data-node='image'] > [data-resize-wrapper] */
+.prose-doc [data-resize-wrapper] {
+  max-width: 100%;
+}
+
+.prose-doc [data-resize-wrapper] > img {
+  display: block;
+}
+
+.prose-doc [data-node='image'].ProseMirror-selectednode img {
+  outline: 2px solid var(--color-ring);
+}
+
+/* Resize handles: 28px touch target with a smaller visible dot */
+.prose-doc [data-resize-handle] {
+  align-items: center;
+  display: flex;
+  height: 28px;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  touch-action: none;
+  transition: opacity 120ms ease;
+  user-select: none;
+  width: 28px;
+  z-index: 1;
+}
+
+.prose-doc [data-resize-handle]::after {
+  background-color: var(--color-primary);
+  border: 2px solid var(--color-background);
+  border-radius: 9999px;
+  content: '';
+  height: 14px;
+  width: 14px;
+}
+
+.prose-doc [data-resize-handle='bottom-right'] {
+  cursor: nwse-resize;
+  transform: translate(50%, 50%);
+}
+
+.prose-doc [data-resize-handle='bottom-left'] {
+  cursor: nesw-resize;
+  transform: translate(-50%, 50%);
+}
+
+/* Show handles on hover (desktop), node selection (tap on mobile), and while dragging */
+.prose-doc [data-resize-wrapper]:hover [data-resize-handle],
+.prose-doc [data-node='image'].ProseMirror-selectednode [data-resize-handle],
+.prose-doc [data-node='image'][data-resize-state='true'] [data-resize-handle] {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 /* Placeholder for the empty editor */
