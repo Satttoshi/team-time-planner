@@ -112,3 +112,116 @@
     @apply bg-scrollbar-thumb-hover;
   }
 }
+
+/* Match plan document typography (Tiptap editor content) */
+.prose-doc {
+  color: var(--color-foreground);
+  line-height: 1.65;
+  font-size: 0.9375rem;
+}
+
+.prose-doc > * + * {
+  margin-top: 0.625em;
+}
+
+.prose-doc h1,
+.prose-doc h2,
+.prose-doc h3 {
+  color: var(--color-foreground);
+  font-weight: 600;
+  line-height: 1.25;
+  margin-top: 1.25em;
+}
+
+.prose-doc h1 {
+  font-size: 1.5em;
+}
+
+.prose-doc h2 {
+  font-size: 1.25em;
+}
+
+.prose-doc h3 {
+  font-size: 1.125em;
+}
+
+.prose-doc ul,
+.prose-doc ol {
+  padding-left: 1.5em;
+}
+
+.prose-doc ul {
+  list-style-type: disc;
+}
+
+.prose-doc ol {
+  list-style-type: decimal;
+}
+
+.prose-doc li + li {
+  margin-top: 0.25em;
+}
+
+.prose-doc blockquote {
+  border-left: 3px solid var(--color-border-elevated);
+  color: var(--color-foreground-secondary);
+  padding-left: 1em;
+}
+
+.prose-doc code {
+  background-color: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 0.25rem;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.875em;
+  padding: 0.125em 0.375em;
+}
+
+.prose-doc pre {
+  background-color: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  padding: 0.75em 1em;
+}
+
+.prose-doc pre code {
+  background-color: transparent;
+  border: none;
+  padding: 0;
+}
+
+.prose-doc a {
+  color: var(--color-primary);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.prose-doc a:hover {
+  color: var(--color-primary-hover);
+}
+
+.prose-doc hr {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 1.5em 0;
+}
+
+.prose-doc img {
+  border-radius: 0.5rem;
+  height: auto;
+  max-width: 100%;
+}
+
+.prose-doc img.ProseMirror-selectednode {
+  outline: 2px solid var(--color-ring);
+}
+
+/* Placeholder for the empty editor */
+.prose-doc p.is-editor-empty:first-child::before {
+  color: var(--color-foreground-muted);
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
