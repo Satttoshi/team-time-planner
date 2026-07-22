@@ -33,6 +33,9 @@ export const matchDocuments = pgTable('match_documents', {
   id: uuid('id').primaryKey().defaultRandom(),
   title: text('title').notNull().default('Untitled match plan'),
   content: jsonb('content').notNull().default('{}'), // Tiptap JSON document
+  matchDate: timestamp('match_date', { withTimezone: true })
+    .notNull()
+    .defaultNow(), // when the FACEIT match takes place
   version: integer('version').notNull().default(0), // optimistic concurrency counter
   presence: jsonb('presence').notNull().default('{}'), // { "<clientId>": "<ISO timestamp>" }
   createdAt: timestamp('created_at').defaultNow().notNull(),

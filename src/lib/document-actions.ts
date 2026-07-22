@@ -1,13 +1,14 @@
 'use server';
 
 import { db, matchDocuments, type MatchDocument } from './db';
-import { and, desc, eq } from 'drizzle-orm';
+import { and, asc, eq } from 'drizzle-orm';
 import { sql } from 'drizzle-orm';
 import { del, list } from '@vercel/blob';
 
 export interface MatchDocumentListItem {
   id: string;
   title: string;
+  matchDate: Date;
   updatedAt: Date;
 }
 
@@ -15,32 +16,76 @@ export type SaveDocumentResult =
   | { conflict: false; version: number }
   | { conflict: true; latest: MatchDocument };
 
+// Documents (and their uploaded blobs) are kept for 3 months after the
+// match date, then removed on the next list fetch.
+async function purgeExpiredMatchDocuments(): Promise<void> {
+  try {
+    const expired = await db
+      .select({ id: matchDocuments.id })
+      .from(matchDocuments)
+      .where(sql`${matchDocuments.matchDate} < now() - interval '3 months'`);
+
+    await Promise.all(expired.map(({ id }) => deleteMatchDocument(id)));
+  } catch (error) {
+    console.error('Error purging expired match documents:', error);
+  }
+}
+
 export async function getMatchDocuments(): Promise<MatchDocumentListItem[]> {
+  await purgeExpiredMatchDocuments();
+
   try {
     return await db
       .select({
         id: matchDocuments.id,
         title: matchDocuments.title,
+        matchDate: matchDocuments.matchDate,
         updatedAt: matchDocuments.updatedAt,
       })
       .from(matchDocuments)
-      .orderBy(desc(matchDocuments.updatedAt));
+      .orderBy(asc(matchDocuments.matchDate));
   } catch (error) {
     console.error('Error fetching match documents:', error);
     throw new Error('Failed to fetch match documents');
   }
 }
 
-export async function createMatchDocument(title?: string): Promise<string> {
+export async function createMatchDocument(
+  title?: string,
+  matchDateIso?: string
+): Promise<string> {
   try {
     const [document] = await db
       .insert(matchDocuments)
-      .values(title ? { title } : {})
+      .values({
+        ...(title ? { title } : {}),
+        ...(matchDateIso ? { matchDate: new Date(matchDateIso) } : {}),
+      })
       .returning({ id: matchDocuments.id });
     return document.id;
   } catch (error) {
     console.error('Error creating match document:', error);
     throw new Error('Failed to create match document');
+  }
+}
+
+export async function updateMatchDocumentDetails(
+  id: string,
+  title: string,
+  matchDateIso: string
+): Promise<void> {
+  try {
+    await db
+      .update(matchDocuments)
+      .set({
+        title,
+        matchDate: new Date(matchDateIso),
+        updatedAt: sql`now()`,
+      })
+      .where(eq(matchDocuments.id, id));
+  } catch (error) {
+    console.error('Error updating match document details:', error);
+    throw new Error('Failed to update match document details');
   }
 }
 
@@ -91,16 +136,20 @@ function collectReferencedBlobPathnames(content: unknown): Set<string> {
 
   const walk = (node: unknown): void => {
     if (!node || typeof node !== 'object') return;
-    const { type, attrs, content: children } = node as {
+    const {
+      type,
+      attrs,
+      content: children,
+    } = node as {
       type?: string;
       attrs?: { src?: string };
       content?: unknown[];
     };
 
     if (type === 'image' && typeof attrs?.src === 'string') {
-      const pathname = new URLSearchParams(
-        attrs.src.split('?')[1] ?? ''
-      ).get('pathname');
+      const pathname = new URLSearchParams(attrs.src.split('?')[1] ?? '').get(
+        'pathname'
+      );
       if (pathname) pathnames.add(pathname);
     }
 
