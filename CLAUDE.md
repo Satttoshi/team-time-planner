@@ -6,10 +6,10 @@ Real-time availability planner for a Counter-Strike team where 5-7 players/coach
 
 ## Architecture Decisions Made
 
-- **Framework**: Next.js 15 (App Router) with server actions
+- **Framework**: Next.js 16 (App Router) with server actions
 - **Database**: Neon Postgres (configured in .env.local)
 - **ORM**: Drizzle ORM (lightweight, type-safe)
-- **Authentication**: Cookie-based password protection with middleware
+- **Authentication**: Cookie-based password protection with proxy (Next.js 16, formerly middleware)
 - **Real-time Strategy**: Smart optimistic updates + intelligent polling
 - **UI Library**: Tailwind CSS + Radix UI utilities
 - **Calendar Navigation**: Swiper.js for smooth day-to-day swiping
@@ -143,7 +143,7 @@ src/
 │   └── db/
 │       ├── index.ts             # Drizzle database connection
 │       └── schema.ts            # Database schema definitions
-├── middleware.ts                # Authentication middleware with cookie validation
+├── proxy.ts                     # Authentication proxy (Next.js 16) with cookie validation
 drizzle.config.ts                # Drizzle kit configuration
 ```
 
@@ -156,11 +156,11 @@ drizzle.config.ts                # Drizzle kit configuration
 - `getAllPlayerAvailabilityForDates()`: Loads availability for multiple dates efficiently
 - `updateAvailabilityStatus()`: Atomic single-hour updates with existence check
 
-### Authentication System (lib/auth-actions.ts + middleware.ts)
+### Authentication System (lib/auth-actions.ts + proxy.ts)
 
 - **Environment Variables**: `APP_PASSWORD` (required), `AUTH_SECRET` (optional)
 - **Cookie-Based Auth**: Persistent 1-year cookie `auth-password` stores validated password
-- **Middleware Protection**: All routes except `/auth`, `/api`, `/_next` require valid cookie
+- **Proxy Protection**: All routes except `/auth`, `/api`, `/_next` require valid cookie
 - **One-Time Password**: Enter `APP_PASSWORD` once, cookie persists until manually cleared
 - **Server Validation**: Password validation happens server-side for security
 - **Browser Extension Safe**: Uses `data-1p-ignore` and `autoComplete="off"` to prevent conflicts
@@ -198,7 +198,7 @@ drizzle.config.ts                # Drizzle kit configuration
 - ✅ Auto-seeded player data
 - ✅ Mobile-responsive design
 - ✅ Cookie-based authentication with persistent login
-- ✅ Middleware protection for all routes
+- ✅ Proxy protection for all routes
 - ✅ Play day detection with optimal time block analysis
 
 ## Success Criteria: ✅ ACHIEVED

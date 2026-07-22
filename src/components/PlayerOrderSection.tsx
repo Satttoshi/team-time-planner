@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -17,9 +17,7 @@ import {
   sortableKeyboardCoordinates,
   horizontalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import {
-  useSortable,
-} from '@dnd-kit/sortable';
+import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { clsx } from 'clsx';
 import { getPlayers, updatePlayerSortOrder } from '@/lib/actions';
@@ -53,13 +51,13 @@ function SortablePlayerChip({ player, isDragging }: SortablePlayerChipProps) {
       {...listeners}
       className={clsx(
         'flex items-center gap-1.5 rounded-full px-3 py-1.5',
-        'bg-surface-elevated border border-border text-foreground',
+        'bg-surface-elevated border-border text-foreground border',
         'text-sm font-medium transition-all duration-150',
         'cursor-grab active:cursor-grabbing',
         'hover:bg-surface hover:border-border-elevated',
-        'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-ring-offset',
-        (isDragging || isSortableDragging) && 'opacity-50 shadow-lg scale-105',
-        'select-none touch-none'
+        'focus:ring-ring focus:ring-offset-ring-offset focus:ring-2 focus:ring-offset-2 focus:outline-none',
+        (isDragging || isSortableDragging) && 'scale-105 opacity-50 shadow-lg',
+        'touch-none select-none'
       )}
       title={`${player.name} (${player.role})`}
     >
@@ -76,7 +74,10 @@ interface PlayerOrderSectionProps {
   refreshTrigger?: number; // Used to trigger refresh from parent
 }
 
-export function PlayerOrderSection({ onPlayersReordered, refreshTrigger }: PlayerOrderSectionProps) {
+export function PlayerOrderSection({
+  onPlayersReordered,
+  refreshTrigger,
+}: PlayerOrderSectionProps) {
   const [players, setPlayers] = useState<Player[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -93,11 +94,7 @@ export function PlayerOrderSection({ onPlayersReordered, refreshTrigger }: Playe
     })
   );
 
-  useEffect(() => {
-    loadPlayers();
-  }, [refreshTrigger]); // Reload when refreshTrigger changes
-
-  const loadPlayers = async () => {
+  const loadPlayers = useCallback(async () => {
     try {
       setIsLoading(true);
       const playersData = await getPlayers(true); // Only active players for reordering
@@ -107,7 +104,11 @@ export function PlayerOrderSection({ onPlayersReordered, refreshTrigger }: Playe
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadPlayers();
+  }, [refreshTrigger, loadPlayers]); // Reload when refreshTrigger changes
 
   const handleDragStart = (event: DragStartEvent) => {
     setDraggedPlayerId(Number(event.active.id));
@@ -121,15 +122,17 @@ export function PlayerOrderSection({ onPlayersReordered, refreshTrigger }: Playe
       return;
     }
 
-    const oldIndex = players.findIndex((player) => player.id === Number(active.id));
-    const newIndex = players.findIndex((player) => player.id === Number(over.id));
+    const oldIndex = players.findIndex(
+      player => player.id === Number(active.id)
+    );
+    const newIndex = players.findIndex(player => player.id === Number(over.id));
 
     if (oldIndex === -1 || newIndex === -1) {
       return;
     }
 
     const newPlayers = arrayMove(players, oldIndex, newIndex);
-    
+
     // Optimistically update UI
     setPlayers(newPlayers);
     setIsUpdating(true);
@@ -138,7 +141,7 @@ export function PlayerOrderSection({ onPlayersReordered, refreshTrigger }: Playe
       // Update database with new order
       const playerIds = newPlayers.map(player => player.id);
       await updatePlayerSortOrder(playerIds);
-      
+
       // Notify parent component
       onPlayersReordered?.();
     } catch (error) {
@@ -153,10 +156,13 @@ export function PlayerOrderSection({ onPlayersReordered, refreshTrigger }: Playe
   if (isLoading) {
     return (
       <div className="animate-pulse">
-        <div className="bg-surface-elevated h-4 w-20 rounded mb-2" />
+        <div className="bg-surface-elevated mb-2 h-4 w-20 rounded" />
         <div className="flex gap-2">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="bg-surface-elevated h-8 w-16 rounded-full" />
+            <div
+              key={i}
+              className="bg-surface-elevated h-8 w-16 rounded-full"
+            />
           ))}
         </div>
       </div>
@@ -165,22 +171,25 @@ export function PlayerOrderSection({ onPlayersReordered, refreshTrigger }: Playe
 
   return (
     <div>
-      <div className="flex items-center gap-2 mb-2">
+      <div className="mb-2 flex items-center gap-2">
         <h3 className="text-foreground text-sm font-medium">Player Order</h3>
         {isUpdating && (
-          <div className="h-3 w-3 animate-spin rounded-full border border-current border-t-transparent text-foreground-muted" />
+          <div className="text-foreground-muted h-3 w-3 animate-spin rounded-full border border-current border-t-transparent" />
         )}
       </div>
-      
+
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <SortableContext items={players.map(p => p.id)} strategy={horizontalListSortingStrategy}>
+        <SortableContext
+          items={players.map(p => p.id)}
+          strategy={horizontalListSortingStrategy}
+        >
           <div className="flex flex-wrap gap-2">
-            {players.map((player) => (
+            {players.map(player => (
               <SortablePlayerChip
                 key={player.id}
                 player={player}
@@ -190,8 +199,8 @@ export function PlayerOrderSection({ onPlayersReordered, refreshTrigger }: Playe
           </div>
         </SortableContext>
       </DndContext>
-      
-      <p className="text-foreground-muted text-xs mt-2">
+
+      <p className="text-foreground-muted mt-2 text-xs">
         Drag chips to reorder players in the schedule grid
       </p>
     </div>

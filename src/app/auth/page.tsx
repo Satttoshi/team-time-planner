@@ -33,13 +33,13 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
+    <div className="bg-background flex min-h-screen items-center justify-center">
       <div className="w-full max-w-md space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-foreground">
+          <h2 className="text-foreground mt-6 text-center text-3xl font-extrabold">
             Authentication Required
           </h2>
-          <p className="mt-2 text-center text-sm text-foreground-secondary">
+          <p className="text-foreground-secondary mt-2 text-center text-sm">
             Please enter the app password to access the team planner
           </p>
         </div>
@@ -57,10 +57,10 @@ export default function AuthPage() {
               value={password}
               onChange={e => setPassword(e.target.value)}
               className={clsx(
-                'relative block w-full rounded-md border border-border',
-                'bg-surface-elevated px-3 py-2 text-foreground placeholder-foreground-muted',
-                'focus:z-10 focus:border-primary focus:ring-primary',
-                'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-ring-offset',
+                'border-border relative block w-full rounded-md border',
+                'bg-surface-elevated text-foreground placeholder-foreground-muted px-3 py-2',
+                'focus:border-primary focus:ring-primary focus:z-10',
+                'focus:ring-offset-ring-offset focus:ring-2 focus:ring-offset-2 focus:outline-none',
                 'transition-colors duration-150 sm:text-sm'
               )}
               placeholder="Enter app password"
@@ -71,7 +71,9 @@ export default function AuthPage() {
           </div>
 
           {error && (
-            <div className="text-center text-sm text-status-unready">{error}</div>
+            <div className="text-status-unready text-center text-sm">
+              {error}
+            </div>
           )}
 
           <div>
@@ -80,11 +82,11 @@ export default function AuthPage() {
               disabled={isLoading || !password.trim()}
               className={clsx(
                 'group relative flex w-full justify-center rounded-md',
-                'border border-transparent bg-primary px-4 py-2',
-                'text-sm font-medium text-white hover:bg-primary-hover',
-                'focus:ring-2 focus:ring-ring focus:outline-none',
-                'focus:ring-offset-2 focus:ring-offset-ring-offset',
-                'disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-primary',
+                'bg-primary border border-transparent px-4 py-2',
+                'hover:bg-primary-hover text-sm font-medium text-white',
+                'focus:ring-ring focus:ring-2 focus:outline-none',
+                'focus:ring-offset-ring-offset focus:ring-offset-2',
+                'disabled:hover:bg-primary disabled:cursor-not-allowed disabled:opacity-50',
                 'transition-colors duration-150'
               )}
             >

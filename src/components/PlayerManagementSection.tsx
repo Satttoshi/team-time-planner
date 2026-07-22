@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { clsx } from 'clsx';
 import {
   PlusIcon,
@@ -50,11 +50,7 @@ export function PlayerManagementSection({
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [isErrorVisible, setIsErrorVisible] = useState<boolean>(false);
 
-  useEffect(() => {
-    loadPlayers();
-  }, []);
-
-  const loadPlayers = async () => {
+  const loadPlayers = useCallback(async () => {
     try {
       setIsLoading(true);
       const playersData = await getPlayers(); // Get all players (active and inactive)
@@ -64,7 +60,11 @@ export function PlayerManagementSection({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadPlayers();
+  }, [loadPlayers]);
 
   const setLoadingState = (key: string, loading: boolean) => {
     setLoadingStates(prev => ({ ...prev, [key]: loading }));
