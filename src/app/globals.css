@@ -32,6 +32,13 @@
   --color-status-unknown: #d1d5db; /* unknown gray */
   --color-status-unknown-bg: #1f2937; /* unknown bg */
 
+  /* CS2 Player Colors (rich text editor) */
+  --color-cs-blue: #60a5fa; /* CS2 blue */
+  --color-cs-green: #4ade80; /* CS2 green */
+  --color-cs-orange: #fb923c; /* CS2 orange */
+  --color-cs-purple: #c084fc; /* CS2 purple */
+  --color-cs-yellow: #facc15; /* CS2 yellow */
+
   /* Interactive States */
   --color-ring: #60a5fa; /* focus ring */
   --color-ring-offset: #0a0a0a; /* ring offset */
@@ -67,6 +74,12 @@
     --color-status-unready-bg: #fee2e2; /* unready bg (lighter) */
     --color-status-unknown: #4b5563; /* unknown gray (darker) */
     --color-status-unknown-bg: #f3f4f6; /* unknown bg (lighter) */
+
+    --color-cs-blue: #2563eb; /* CS2 blue (darker) */
+    --color-cs-green: #16a34a; /* CS2 green (darker) */
+    --color-cs-orange: #ea580c; /* CS2 orange (darker) */
+    --color-cs-purple: #9333ea; /* CS2 purple (darker) */
+    --color-cs-yellow: #ca8a04; /* CS2 yellow (darker) */
 
     --color-ring: #3b82f6; /* focus ring */
     --color-ring-offset: #ffffff; /* ring offset (white) */
@@ -111,4 +124,174 @@
   ::-webkit-scrollbar-thumb:hover {
     @apply bg-scrollbar-thumb-hover;
   }
+}
+
+/* Match plan document typography (Tiptap editor content) */
+.prose-doc {
+  color: var(--color-foreground);
+  line-height: 1.65;
+  font-size: 0.9375rem;
+}
+
+.prose-doc > * + * {
+  margin-top: 0.625em;
+}
+
+.prose-doc h1,
+.prose-doc h2,
+.prose-doc h3 {
+  color: var(--color-foreground);
+  font-weight: 600;
+  line-height: 1.25;
+  margin-top: 1.25em;
+}
+
+.prose-doc h1 {
+  font-size: 1.5em;
+}
+
+.prose-doc h2 {
+  font-size: 1.25em;
+}
+
+.prose-doc h3 {
+  font-size: 1.125em;
+}
+
+.prose-doc ul,
+.prose-doc ol {
+  padding-left: 1.5em;
+}
+
+.prose-doc ul {
+  list-style-type: disc;
+}
+
+.prose-doc ol {
+  list-style-type: decimal;
+}
+
+.prose-doc li + li {
+  margin-top: 0.25em;
+}
+
+.prose-doc blockquote {
+  border-left: 3px solid var(--color-border-elevated);
+  color: var(--color-foreground-secondary);
+  padding-left: 1em;
+}
+
+.prose-doc code {
+  background-color: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 0.25rem;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.875em;
+  padding: 0.125em 0.375em;
+}
+
+.prose-doc pre {
+  background-color: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  padding: 0.75em 1em;
+}
+
+.prose-doc pre code {
+  background-color: transparent;
+  border: none;
+  padding: 0;
+}
+
+.prose-doc a {
+  color: var(--color-primary);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.prose-doc a:hover {
+  color: var(--color-primary-hover);
+}
+
+.prose-doc hr {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 1.5em 0;
+}
+
+.prose-doc img {
+  border-radius: 0.5rem;
+  /* !important: resize commits write an inline pixel height; when max-width
+     caps the width on small screens, that height would distort the image */
+  height: auto !important;
+  max-width: 100%;
+}
+
+.prose-doc img.ProseMirror-selectednode {
+  outline: 2px solid var(--color-ring);
+}
+
+/* Resizable images: Tiptap wraps them in [data-node='image'] > [data-resize-wrapper] */
+.prose-doc [data-resize-wrapper] {
+  max-width: 100%;
+}
+
+.prose-doc [data-resize-wrapper] > img {
+  display: block;
+}
+
+.prose-doc [data-node='image'].ProseMirror-selectednode img {
+  outline: 2px solid var(--color-ring);
+}
+
+/* Resize handles: 28px touch target with a smaller visible dot */
+.prose-doc [data-resize-handle] {
+  align-items: center;
+  display: flex;
+  height: 28px;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  touch-action: none;
+  transition: opacity 120ms ease;
+  user-select: none;
+  width: 28px;
+  z-index: 1;
+}
+
+.prose-doc [data-resize-handle]::after {
+  background-color: var(--color-primary);
+  border: 2px solid var(--color-background);
+  border-radius: 9999px;
+  content: '';
+  height: 14px;
+  width: 14px;
+}
+
+.prose-doc [data-resize-handle='bottom-right'] {
+  cursor: nwse-resize;
+  transform: translate(50%, 50%);
+}
+
+.prose-doc [data-resize-handle='bottom-left'] {
+  cursor: nesw-resize;
+  transform: translate(-50%, 50%);
+}
+
+/* Show handles on hover (desktop), node selection (tap on mobile), and while dragging */
+.prose-doc [data-resize-wrapper]:hover [data-resize-handle],
+.prose-doc [data-node='image'].ProseMirror-selectednode [data-resize-handle],
+.prose-doc [data-node='image'][data-resize-state='true'] [data-resize-handle] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Placeholder for the empty editor */
+.prose-doc p.is-editor-empty:first-child::before {
+  color: var(--color-foreground-muted);
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
 }

@@ -176,3 +176,64 @@ export function findPlayDayOpportunities(
 
   return opportunities;
 }
+
+// Match dates are always entered and displayed in CET (Europe/Berlin),
+// the team's base time zone, regardless of the viewer's local time.
+export const MATCH_TIME_ZONE = 'Europe/Berlin';
+
+const MONTH_NAMES = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
+
+function toMatchZoned(date: Date): Temporal.ZonedDateTime {
+  return Temporal.Instant.fromEpochMilliseconds(
+    date.getTime()
+  ).toZonedDateTimeISO(MATCH_TIME_ZONE);
+}
+
+const pad = (value: number): string => String(value).padStart(2, '0');
+
+// e.g. "23. July 2026 19:30 CET"
+export function formatMatchDate(date: Date): string {
+  const zoned = toMatchZoned(date);
+  return `${zoned.day}. ${MONTH_NAMES[zoned.month - 1]} ${zoned.year} ${pad(
+    zoned.hour
+  )}:${pad(zoned.minute)} CET`;
+}
+
+// CET wall-clock form value ("YYYY-MM-DDTHH:mm"), rounded to the nearest
+// 15 minutes so the value always matches the quarter-hour minute options.
+export function toMatchDateInputValue(date: Date): string {
+  const zoned = toMatchZoned(date).round({
+    smallestUnit: 'minute',
+    roundingIncrement: 15,
+    roundingMode: 'halfExpand',
+  });
+  return `${zoned.year}-${pad(zoned.month)}-${pad(zoned.day)}T${pad(
+    zoned.hour
+  )}:${pad(zoned.minute)}`;
+}
+
+// Interpret a datetime-local value as CET wall-clock time → UTC ISO string
+export function matchDateInputToIso(value: string): string {
+  return Temporal.PlainDateTime.from(value)
+    .toZonedDateTime(MATCH_TIME_ZONE)
+    .toInstant()
+    .toString();
+}
+
+// Default for new match plans: today at 20:00 CET
+export function defaultMatchDateInputValue(): string {
+  return `${Temporal.Now.plainDateISO(MATCH_TIME_ZONE).toString()}T20:00`;
+}

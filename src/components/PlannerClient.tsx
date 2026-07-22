@@ -12,6 +12,7 @@ import {
   getTwoWeekWindow,
 } from '@/lib/dateUtils';
 import { SwiperContainer } from './SwiperContainer';
+import { PlannerFooter } from './PlannerFooter';
 import { usePolling } from '@/hooks/usePolling';
 
 interface PlannerClientProps {
@@ -63,7 +64,7 @@ export function PlannerClient({ initialData }: PlannerClientProps) {
   });
 
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen pb-14">
       <div className="container mx-auto h-[700px]">
         <SwiperContainer
           dates={dates}
@@ -74,6 +75,7 @@ export function PlannerClient({ initialData }: PlannerClientProps) {
           onPlayersReordered={loadAllData}
         />
       </div>
+      <PlannerFooter />
     </main>
   );
 }
