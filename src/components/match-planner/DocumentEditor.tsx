@@ -10,6 +10,7 @@ import {
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import FileHandler from '@tiptap/extension-file-handler';
+import { Color, TextStyle } from '@tiptap/extension-text-style';
 import { Placeholder } from '@tiptap/extensions';
 import { EditorToolbar } from './EditorToolbar';
 
@@ -138,6 +139,8 @@ export function DocumentEditor({
       Placeholder.configure({
         placeholder: 'Start writing your match plan…',
       }),
+      TextStyle,
+      Color,
       Image,
       FileHandler.configure({
         allowedMimeTypes: ALLOWED_IMAGE_TYPES,

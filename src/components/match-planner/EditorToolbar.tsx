@@ -15,6 +15,15 @@ interface EditorToolbarProps {
   editor: Editor;
 }
 
+// CS2 player colors — stored as CSS variables so text adapts to light/dark theme
+const TEXT_COLORS = [
+  { name: 'Blue', value: 'var(--color-cs-blue)' },
+  { name: 'Green', value: 'var(--color-cs-green)' },
+  { name: 'Orange', value: 'var(--color-cs-orange)' },
+  { name: 'Purple', value: 'var(--color-cs-purple)' },
+  { name: 'Yellow', value: 'var(--color-cs-yellow)' },
+] as const;
+
 interface ToolbarButtonProps {
   label: string;
   active?: boolean;
@@ -70,6 +79,7 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
       bulletList: e.isActive('bulletList'),
       orderedList: e.isActive('orderedList'),
       link: e.isActive('link'),
+      textColor: e.getAttributes('textStyle').color as string | undefined,
       canUndo: e.can().undo(),
       canRedo: e.can().redo(),
     }),
@@ -162,6 +172,29 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
       <ToolbarButton label="Link" active={state.link} onClick={handleLink}>
         <Link2Icon className="h-4 w-4" />
       </ToolbarButton>
+
+      <ToolbarDivider />
+
+      <ToolbarButton
+        label="Default color"
+        active={!state.textColor}
+        onClick={() => editor.chain().focus().unsetColor().run()}
+      >
+        <span className="border-border-elevated bg-foreground h-4 w-4 rounded-full border" />
+      </ToolbarButton>
+      {TEXT_COLORS.map(color => (
+        <ToolbarButton
+          key={color.name}
+          label={color.name}
+          active={state.textColor === color.value}
+          onClick={() => editor.chain().focus().setColor(color.value).run()}
+        >
+          <span
+            className="border-border-elevated h-4 w-4 rounded-full border"
+            style={{ backgroundColor: color.value }}
+          />
+        </ToolbarButton>
+      ))}
 
       <ToolbarDivider />
 

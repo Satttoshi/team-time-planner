@@ -32,6 +32,13 @@
   --color-status-unknown: #d1d5db; /* unknown gray */
   --color-status-unknown-bg: #1f2937; /* unknown bg */
 
+  /* CS2 Player Colors (rich text editor) */
+  --color-cs-blue: #60a5fa; /* CS2 blue */
+  --color-cs-green: #4ade80; /* CS2 green */
+  --color-cs-orange: #fb923c; /* CS2 orange */
+  --color-cs-purple: #c084fc; /* CS2 purple */
+  --color-cs-yellow: #facc15; /* CS2 yellow */
+
   /* Interactive States */
   --color-ring: #60a5fa; /* focus ring */
   --color-ring-offset: #0a0a0a; /* ring offset */
@@ -67,6 +74,12 @@
     --color-status-unready-bg: #fee2e2; /* unready bg (lighter) */
     --color-status-unknown: #4b5563; /* unknown gray (darker) */
     --color-status-unknown-bg: #f3f4f6; /* unknown bg (lighter) */
+
+    --color-cs-blue: #2563eb; /* CS2 blue (darker) */
+    --color-cs-green: #16a34a; /* CS2 green (darker) */
+    --color-cs-orange: #ea580c; /* CS2 orange (darker) */
+    --color-cs-purple: #9333ea; /* CS2 purple (darker) */
+    --color-cs-yellow: #ca8a04; /* CS2 yellow (darker) */
 
     --color-ring: #3b82f6; /* focus ring */
     --color-ring-offset: #ffffff; /* ring offset (white) */
