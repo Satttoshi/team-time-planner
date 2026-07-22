@@ -93,9 +93,16 @@ export function MatchDocumentClient({
     setSaveState('saving');
 
     try {
+      // getJSON() embeds ProseMirror's null-prototype attrs objects, which
+      // React refuses to serialize into a server action — round-trip through
+      // JSON to get plain objects (otherwise image attrs are dropped).
+      const content = JSON.parse(
+        JSON.stringify(editor.getJSON())
+      ) as JSONContent;
+
       const result = await saveMatchDocument(
         documentId,
-        editor.getJSON(),
+        content,
         versionRef.current
       );
 

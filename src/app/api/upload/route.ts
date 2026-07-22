@@ -44,12 +44,14 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const blob = await put(
-      `match-docs/${documentId}/${crypto.randomUUID()}.${ext}`,
-      body,
-      { access: 'public', contentType }
-    );
-    return NextResponse.json({ url: blob.url });
+    // The Blob store is private, so blob URLs aren't directly loadable by the
+    // browser. Upload privately and hand back a same-origin URL that streams
+    // the image through the authenticated /api/image route.
+    const pathname = `match-docs/${documentId}/${crypto.randomUUID()}.${ext}`;
+    await put(pathname, body, { access: 'private', contentType });
+    return NextResponse.json({
+      url: `/api/image?pathname=${encodeURIComponent(pathname)}`,
+    });
   } catch (error) {
     console.error('Error uploading image:', error);
     return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
