@@ -26,4 +26,4 @@ Still fine (not type assertions):
 
 ## Existing violations
 
-A few legacy `as` casts and `any` usages exist (match-planner jsonb casts, `src/test-utils/mockDb.ts`, some test mocks). Do not add new ones. When you touch a line containing one, replace it with a properly typed alternative if feasible in scope; otherwise leave it and mention it.
+None — the codebase is clean as of July 2026 (jsonb columns are typed via `.$type<T>()` in the schema, `mockDb.ts` uses a typed thenable proxy, mocks are structurally typed). Keep it that way: do not add new `as` casts or `any` usages.

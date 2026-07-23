@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { Editor, JSONContent } from '@tiptap/react';
+import type { Editor } from '@tiptap/react';
 import type { MatchDocument } from '@/lib/db/schema';
 import {
   clearPresence,
@@ -36,17 +36,25 @@ interface MatchDocumentClientProps {
   initialDocument: MatchDocument;
 }
 
-function hasOtherEditors(presence: unknown, ownClientId: string): boolean {
+function hasOtherEditors(
+  presence: MatchDocument['presence'],
+  ownClientId: string
+): boolean {
   if (!presence || typeof presence !== 'object') return false;
 
   const now = Date.now();
-  return Object.entries(presence as Record<string, string>).some(
-    ([clientId, timestamp]) => {
-      if (clientId === ownClientId) return false;
-      const lastSeen = Date.parse(timestamp);
-      return !Number.isNaN(lastSeen) && now - lastSeen < PRESENCE_FRESH_MS;
-    }
-  );
+  return Object.entries(presence).some(([clientId, timestamp]) => {
+    if (clientId === ownClientId) return false;
+    const lastSeen = Date.parse(timestamp);
+    return !Number.isNaN(lastSeen) && now - lastSeen < PRESENCE_FRESH_MS;
+  });
+}
+
+// getJSON() embeds ProseMirror's null-prototype attrs objects, which React
+// refuses to serialize into a server action — round-trip through JSON to get
+// plain objects (otherwise image attrs are dropped).
+function toPlainJSON<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value));
 }
 
 export function MatchDocumentClient({
@@ -101,12 +109,7 @@ export function MatchDocumentClient({
     setSaveState('saving');
 
     try {
-      // getJSON() embeds ProseMirror's null-prototype attrs objects, which
-      // React refuses to serialize into a server action — round-trip through
-      // JSON to get plain objects (otherwise image attrs are dropped).
-      const content = JSON.parse(
-        JSON.stringify(editor.getJSON())
-      ) as JSONContent;
+      const content = toPlainJSON(editor.getJSON());
 
       const result = await saveMatchDocument(
         documentId,
@@ -117,7 +120,7 @@ export function MatchDocumentClient({
       if (result.conflict) {
         // Someone else saved first — take their version instead of clobbering it
         versionRef.current = result.latest.version;
-        editor.commands.setContent(result.latest.content as JSONContent, {
+        editor.commands.setContent(result.latest.content, {
           emitUpdate: false,
         });
         isDirtyRef.current = false;
@@ -191,7 +194,7 @@ export function MatchDocumentClient({
       latest.version > versionRef.current
     ) {
       versionRef.current = latest.version;
-      editor.commands.setContent(latest.content as JSONContent, {
+      editor.commands.setContent(latest.content, {
         emitUpdate: false,
       });
     }
@@ -302,7 +305,7 @@ export function MatchDocumentClient({
 
         <DocumentEditor
           documentId={documentId}
-          initialContent={initialDocument.content as JSONContent}
+          initialContent={initialDocument.content}
           onEditorReady={editor => {
             editorRef.current = editor;
           }}

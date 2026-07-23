@@ -4,10 +4,12 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@radix-ui/react-icons';
 import { type Swiper as SwiperClass } from 'swiper';
 import { clsx } from 'clsx';
 
+// Only the slide methods are needed — the narrower type also lets tests pass
+// a two-method mock instead of a full Swiper instance.
 interface NavigationButtonProps {
   direction: 'prev' | 'next';
   disabled: boolean;
-  swiper: SwiperClass | null;
+  swiper: Pick<SwiperClass, 'slidePrev' | 'slideNext'> | null;
 }
 
 export function NavigationButton({

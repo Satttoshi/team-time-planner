@@ -7,6 +7,7 @@ import {
   integer,
   uuid,
 } from 'drizzle-orm/pg-core';
+import type { JSONContent } from '@tiptap/react';
 
 export const players = pgTable('players', {
   id: serial('id').primaryKey(),
@@ -25,19 +26,25 @@ export const availability = pgTable('availability', {
     .notNull()
     .references(() => players.id, { onDelete: 'cascade' }),
   date: text('date').notNull(), // Format: YYYY-MM-DD
-  hours: jsonb('hours').notNull().default('{}'), // { "19": "ready", "20": "uncertain", "21": "unready", "22": "ready", "23": "uncertain" }
+  hours: jsonb('hours')
+    .notNull()
+    .default('{}')
+    .$type<Record<string, AvailabilityStatus>>(), // { "19": "ready", "20": "uncertain", "21": "unready", "22": "ready", "23": "uncertain" }
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
 export const matchDocuments = pgTable('match_documents', {
   id: uuid('id').primaryKey().defaultRandom(),
   title: text('title').notNull().default('Untitled match plan'),
-  content: jsonb('content').notNull().default('{}'), // Tiptap JSON document
+  content: jsonb('content').notNull().default('{}').$type<JSONContent>(), // Tiptap JSON document
   matchDate: timestamp('match_date', { withTimezone: true })
     .notNull()
     .defaultNow(), // when the FACEIT match takes place
   version: integer('version').notNull().default(0), // optimistic concurrency counter
-  presence: jsonb('presence').notNull().default('{}'), // { "<clientId>": "<ISO timestamp>" }
+  presence: jsonb('presence')
+    .notNull()
+    .default('{}')
+    .$type<Record<string, string>>(), // { "<clientId>": "<ISO timestamp>" }
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

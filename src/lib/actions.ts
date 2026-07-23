@@ -216,9 +216,7 @@ export async function getPlayerAvailabilityForDate(
 
       return {
         player,
-        availability:
-          (playerAvailability?.hours as Record<string, AvailabilityStatus>) ||
-          {},
+        availability: playerAvailability?.hours || {},
       };
     });
   } catch (error) {
@@ -248,9 +246,7 @@ export async function getAllPlayerAvailabilityForDates(
 
         return {
           player,
-          availability:
-            (playerAvailability?.hours as Record<string, AvailabilityStatus>) ||
-            {},
+          availability: playerAvailability?.hours || {},
         };
       });
     }
