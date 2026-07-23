@@ -49,21 +49,29 @@ const iconButtonClasses = clsx(
   'text-foreground-secondary hover:bg-surface-elevated hover:text-foreground'
 );
 
+// 16px (text-base) is deliberate: iOS Safari auto-zooms the page when a
+// focused form control renders below 16px.
 const inputClasses = clsx(
-  'bg-surface border-border text-foreground w-full rounded border px-3 py-2 text-sm',
+  'bg-surface border-border text-foreground w-full rounded border px-3 py-2 text-base',
   'focus:ring-ring focus:ring-2 focus:outline-none'
 );
 
 const labelClasses = 'text-foreground-secondary mb-1 block text-xs font-medium';
 
 const selectClasses = clsx(
-  'bg-surface border-border text-foreground rounded border py-2 pr-8 pl-3 text-sm',
+  'bg-surface border-border text-foreground rounded border py-2 pr-8 pl-3 text-base',
   'appearance-none focus:ring-ring focus:ring-2 focus:outline-none'
 );
 
 const selectChevronClasses = clsx(
   'text-foreground-muted pointer-events-none absolute top-1/2 right-2.5',
   'h-3.5 w-3.5 -translate-y-1/2'
+);
+
+const dialogContentClasses = clsx(
+  'fixed top-1/2 left-1/2 z-50 w-[calc(100vw-16px)] max-w-md',
+  '-translate-x-1/2 -translate-y-1/2 rounded-lg p-6 shadow-lg',
+  'bg-surface-elevated border-border-elevated border'
 );
 
 const HOUR_OPTIONS = Array.from({ length: 24 }, (_, hour) =>
@@ -358,12 +366,9 @@ export function DocumentListClient({
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-50 bg-black/50" />
           <Dialog.Content
-            className={clsx(
-              'fixed top-1/2 left-1/2 z-50 w-[calc(100vw-16px)] max-w-md',
-              '-translate-x-1/2 -translate-y-1/2 rounded-lg p-6 shadow-lg',
-              'bg-surface-elevated border-border-elevated border'
-            )}
+            className={dialogContentClasses}
             onInteractOutside={event => event.preventDefault()}
+            onOpenAutoFocus={event => event.preventDefault()}
           >
             <Dialog.Title className="text-foreground mb-2 text-lg font-semibold">
               New Match Plan
@@ -388,7 +393,6 @@ export function DocumentListClient({
                     value={createTitle}
                     onChange={event => setCreateTitle(event.target.value)}
                     placeholder="Untitled match plan"
-                    autoFocus
                     data-1p-ignore
                     autoComplete="off"
                   />
@@ -453,12 +457,9 @@ export function DocumentListClient({
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-50 bg-black/50" />
           <Dialog.Content
-            className={clsx(
-              'fixed top-1/2 left-1/2 z-50 w-[calc(100vw-16px)] max-w-md',
-              '-translate-x-1/2 -translate-y-1/2 rounded-lg p-6 shadow-lg',
-              'bg-surface-elevated border-border-elevated border'
-            )}
+            className={dialogContentClasses}
             onInteractOutside={event => event.preventDefault()}
+            onOpenAutoFocus={event => event.preventDefault()}
           >
             <Dialog.Title className="text-foreground mb-2 text-lg font-semibold">
               Edit Match Plan
@@ -482,7 +483,6 @@ export function DocumentListClient({
                     className={inputClasses}
                     value={editTitle}
                     onChange={event => setEditTitle(event.target.value)}
-                    autoFocus
                     data-1p-ignore
                     autoComplete="off"
                   />
@@ -546,13 +546,7 @@ export function DocumentListClient({
       >
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-50 bg-black/50" />
-          <Dialog.Content
-            className={clsx(
-              'fixed top-1/2 left-1/2 z-50 w-[calc(100vw-16px)] max-w-md',
-              '-translate-x-1/2 -translate-y-1/2 rounded-lg p-6 shadow-lg',
-              'bg-surface-elevated border-border-elevated border'
-            )}
-          >
+          <Dialog.Content className={dialogContentClasses}>
             <Dialog.Title className="text-foreground mb-2 text-lg font-semibold">
               Delete Match Plan
             </Dialog.Title>

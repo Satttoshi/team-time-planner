@@ -24,6 +24,14 @@ const POLL_INTERVAL_MS = 4000;
 
 type SaveState = 'saved' | 'dirty' | 'saving';
 
+// crypto.randomUUID only exists in secure contexts (https/localhost); fall
+// back to getRandomValues when the app is opened via a LAN IP over http.
+function generateClientId(): string {
+  if (typeof crypto.randomUUID === 'function') return crypto.randomUUID();
+  const bytes = crypto.getRandomValues(new Uint8Array(16));
+  return Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
+}
+
 interface MatchDocumentClientProps {
   initialDocument: MatchDocument;
 }
@@ -44,7 +52,7 @@ function hasOtherEditors(presence: unknown, ownClientId: string): boolean {
 export function MatchDocumentClient({
   initialDocument,
 }: MatchDocumentClientProps) {
-  const [clientId] = useState(() => crypto.randomUUID());
+  const [clientId] = useState(() => generateClientId());
   const [title, setTitle] = useState(initialDocument.title);
   const [saveState, setSaveState] = useState<SaveState>('saved');
   const [isUserActive, setIsUserActive] = useState(false);

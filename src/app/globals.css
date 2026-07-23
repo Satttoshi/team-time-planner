@@ -130,7 +130,8 @@
 .prose-doc {
   color: var(--color-foreground);
   line-height: 1.65;
-  font-size: 0.9375rem;
+  /* Minimum 16px: iOS Safari auto-zooms when a focused editable renders smaller */
+  font-size: 1rem;
 }
 
 .prose-doc > * + * {
