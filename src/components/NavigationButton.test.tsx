@@ -19,13 +19,17 @@ describe('NavigationButton', () => {
   });
 
   it('renders an empty placeholder when the swiper is not ready yet', () => {
-    render(<NavigationButton direction="next" disabled={false} swiper={null} />);
+    render(
+      <NavigationButton direction="next" disabled={false} swiper={null} />
+    );
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
   it('slides to the previous day', () => {
     const swiper = makeSwiper();
-    render(<NavigationButton direction="prev" disabled={false} swiper={swiper} />);
+    render(
+      <NavigationButton direction="prev" disabled={false} swiper={swiper} />
+    );
 
     fireEvent.click(screen.getByRole('button', { name: 'Previous day' }));
     expect(swiper.slidePrev).toHaveBeenCalledTimes(1);
@@ -34,7 +38,9 @@ describe('NavigationButton', () => {
 
   it('slides to the next day', () => {
     const swiper = makeSwiper();
-    render(<NavigationButton direction="next" disabled={false} swiper={swiper} />);
+    render(
+      <NavigationButton direction="next" disabled={false} swiper={swiper} />
+    );
 
     fireEvent.click(screen.getByRole('button', { name: 'Next day' }));
     expect(swiper.slideNext).toHaveBeenCalledTimes(1);

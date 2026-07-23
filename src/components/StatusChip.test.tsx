@@ -27,9 +27,7 @@ describe('StatusChip', () => {
   });
 
   it('merges a custom className', () => {
-    render(
-      <StatusChip status="ready" onClick={() => {}} className="w-full" />
-    );
+    render(<StatusChip status="ready" onClick={() => {}} className="w-full" />);
     expect(screen.getByRole('button')).toHaveClass('w-full');
   });
 });

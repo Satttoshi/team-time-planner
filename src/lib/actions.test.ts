@@ -11,9 +11,7 @@ const db = vi.hoisted(() => ({
 
 vi.mock('@/lib/db', async () => {
   const schema =
-    await vi.importActual<typeof import('@/lib/db/schema')>(
-      '@/lib/db/schema'
-    );
+    await vi.importActual<typeof import('@/lib/db/schema')>('@/lib/db/schema');
   return { ...schema, db };
 });
 

@@ -42,18 +42,14 @@ describe('TimeSlotRow', () => {
   });
 
   it('shows a sync ring on chips with pending updates', () => {
-    render(
-      <TimeSlotRow {...baseProps} pendingUpdates={new Set(['1-19'])} />
-    );
+    render(<TimeSlotRow {...baseProps} pendingUpdates={new Set(['1-19'])} />);
 
     expect(screen.getByRole('button', { name: 'Ready' })).toHaveClass('ring-2');
     expect(screen.getByRole('button', { name: '?' })).not.toHaveClass('ring-2');
   });
 
   it('shows a sync ring on all chips of a bulk-pending player', () => {
-    render(
-      <TimeSlotRow {...baseProps} bulkPendingPlayers={new Set([2])} />
-    );
+    render(<TimeSlotRow {...baseProps} bulkPendingPlayers={new Set([2])} />);
     expect(screen.getByRole('button', { name: '?' })).toHaveClass('ring-2');
   });
 });

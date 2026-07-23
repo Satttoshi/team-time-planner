@@ -4,7 +4,10 @@ import { GridHeader } from './GridHeader';
 import { makePlayerAvailability } from '@/test-utils/factories';
 
 const players = [
-  makePlayerAvailability({ id: 1, name: 'Josh' }, { '19': 'ready', '20': 'ready' }),
+  makePlayerAvailability(
+    { id: 1, name: 'Josh' },
+    { '19': 'ready', '20': 'ready' }
+  ),
   makePlayerAvailability({ id: 2, name: 'Toby' }, {}),
 ];
 

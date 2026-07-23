@@ -45,9 +45,7 @@ describe('proxy (auth gate)', () => {
 
     const response = proxy(request('/'));
     expect(response.status).toBe(307);
-    expect(response.headers.get('location')).toBe(
-      'http://localhost:3000/auth'
-    );
+    expect(response.headers.get('location')).toBe('http://localhost:3000/auth');
   });
 
   it('redirects to /auth when the cookie value is wrong', () => {
@@ -55,8 +53,6 @@ describe('proxy (auth gate)', () => {
 
     const response = proxy(request('/match-planner', 'stale-password'));
     expect(response.status).toBe(307);
-    expect(response.headers.get('location')).toBe(
-      'http://localhost:3000/auth'
-    );
+    expect(response.headers.get('location')).toBe('http://localhost:3000/auth');
   });
 });

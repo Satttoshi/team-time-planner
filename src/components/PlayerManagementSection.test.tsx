@@ -136,10 +136,7 @@ describe('PlayerManagementSection', () => {
       fireEvent.click(screen.getAllByTitle('Set as inactive')[0]);
 
       await waitFor(() => {
-        expect(actions.togglePlayerActiveStatus).toHaveBeenCalledWith(
-          1,
-          false
-        );
+        expect(actions.togglePlayerActiveStatus).toHaveBeenCalledWith(1, false);
       });
     });
 
@@ -179,7 +176,9 @@ describe('PlayerManagementSection', () => {
       expect(
         await screen.findByRole('heading', { name: 'Delete Player' })
       ).toBeInTheDocument();
-      expect(screen.getByText('Josh', { selector: 'strong' })).toBeInTheDocument();
+      expect(
+        screen.getByText('Josh', { selector: 'strong' })
+      ).toBeInTheDocument();
       expect(actions.deletePlayer).not.toHaveBeenCalled();
     });
 

@@ -117,7 +117,11 @@ describe('isToday', () => {
 describe('getCurrentDayIndex', () => {
   it('finds the index of today within a date range', () => {
     const today = Temporal.Now.plainDateISO();
-    const dates = [today.subtract({ days: 2 }), today.subtract({ days: 1 }), today];
+    const dates = [
+      today.subtract({ days: 2 }),
+      today.subtract({ days: 1 }),
+      today,
+    ];
     expect(getCurrentDayIndex(dates)).toBe(2);
   });
 

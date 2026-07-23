@@ -36,9 +36,10 @@ describe('PlannerClient', () => {
     render(<PlannerClient initialData={{ '2026-07-23': [] }} />);
 
     expect(screen.getByTestId('swiper')).toHaveTextContent('2026-07-23');
-    expect(
-      screen.getByRole('link', { name: /Match Plans/ })
-    ).toHaveAttribute('href', '/match-planner');
+    expect(screen.getByRole('link', { name: /Match Plans/ })).toHaveAttribute(
+      'href',
+      '/match-planner'
+    );
   });
 
   it('polls availability for the full visible date window', async () => {

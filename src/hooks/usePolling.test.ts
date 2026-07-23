@@ -94,7 +94,9 @@ describe('usePolling', () => {
 
   it('cleans up the interval on unmount', async () => {
     const callback = vi.fn().mockResolvedValue(undefined);
-    const { unmount } = renderHook(() => usePolling(callback, { interval: 3000 }));
+    const { unmount } = renderHook(() =>
+      usePolling(callback, { interval: 3000 })
+    );
 
     unmount();
     await vi.advanceTimersByTimeAsync(9000);

@@ -31,7 +31,9 @@ afterEach(() => {
 
 describe('AvailabilityGrid', () => {
   it('renders the default 19:00-23:00 rows', () => {
-    render(<AvailabilityGrid date="2026-07-23" playerAvailabilities={players} />);
+    render(
+      <AvailabilityGrid date="2026-07-23" playerAvailabilities={players} />
+    );
 
     for (const hour of ['19:00', '20:00', '21:00', '22:00', '23:00']) {
       expect(screen.getByText(hour)).toBeInTheDocument();
@@ -39,7 +41,9 @@ describe('AvailabilityGrid', () => {
   });
 
   it('cycles a chip instantly on click and syncs to the server after the batch delay', async () => {
-    render(<AvailabilityGrid date="2026-07-23" playerAvailabilities={players} />);
+    render(
+      <AvailabilityGrid date="2026-07-23" playerAvailabilities={players} />
+    );
 
     // Josh @ 19:00 is "Ready" -> clicking cycles to "Maybe" without waiting
     fireEvent.click(screen.getByRole('button', { name: 'Ready' }));
@@ -56,7 +60,9 @@ describe('AvailabilityGrid', () => {
   });
 
   it('supports rapid-fire clicking: UI cycles each click, server gets only the final status', async () => {
-    render(<AvailabilityGrid date="2026-07-23" playerAvailabilities={players} />);
+    render(
+      <AvailabilityGrid date="2026-07-23" playerAvailabilities={players} />
+    );
 
     fireEvent.click(screen.getByRole('button', { name: 'Ready' }));
     fireEvent.click(screen.getByRole('button', { name: 'Maybe' }));
@@ -91,7 +97,9 @@ describe('AvailabilityGrid', () => {
   });
 
   it('sets a whole player column at once via the header button', async () => {
-    render(<AvailabilityGrid date="2026-07-23" playerAvailabilities={players} />);
+    render(
+      <AvailabilityGrid date="2026-07-23" playerAvailabilities={players} />
+    );
 
     // Toby has no data -> bulk status "unknown" -> next is "ready"
     fireEvent.click(screen.getByRole('button', { name: 'Toby' }));
@@ -109,7 +117,9 @@ describe('AvailabilityGrid', () => {
   });
 
   it('adds an earlier time slot via the + button', () => {
-    render(<AvailabilityGrid date="2026-07-23" playerAvailabilities={players} />);
+    render(
+      <AvailabilityGrid date="2026-07-23" playerAvailabilities={players} />
+    );
 
     expect(screen.queryByText('18:00')).not.toBeInTheDocument();
     fireEvent.click(screen.getByTitle('Add earlier time slot'));

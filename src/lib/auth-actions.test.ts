@@ -30,7 +30,9 @@ describe('loginAction', () => {
   it('fails when APP_PASSWORD is not configured', async () => {
     vi.stubEnv('APP_PASSWORD', '');
 
-    await expect(loginAction(prevState, formDataWith('anything'))).resolves.toEqual({
+    await expect(
+      loginAction(prevState, formDataWith('anything'))
+    ).resolves.toEqual({
       error: 'Authentication not configured',
     });
     expect(cookieSet).not.toHaveBeenCalled();
@@ -56,9 +58,11 @@ describe('loginAction', () => {
   it('rejects a wrong password without setting a cookie', async () => {
     vi.stubEnv('APP_PASSWORD', 'secret');
 
-    await expect(loginAction(prevState, formDataWith('nope'))).resolves.toEqual({
-      error: 'Invalid password',
-    });
+    await expect(loginAction(prevState, formDataWith('nope'))).resolves.toEqual(
+      {
+        error: 'Invalid password',
+      }
+    );
     expect(cookieSet).not.toHaveBeenCalled();
   });
 

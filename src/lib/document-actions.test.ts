@@ -10,9 +10,7 @@ const db = vi.hoisted(() => ({
 
 vi.mock('@/lib/db', async () => {
   const schema =
-    await vi.importActual<typeof import('@/lib/db/schema')>(
-      '@/lib/db/schema'
-    );
+    await vi.importActual<typeof import('@/lib/db/schema')>('@/lib/db/schema');
   return { ...schema, db };
 });
 
@@ -258,7 +256,9 @@ describe('saveMatchDocument (optimistic concurrency)', () => {
   it('saves and returns the incremented version when the base version matches', async () => {
     db.update.mockReturnValueOnce(chain([{ version: 5 }]));
 
-    await expect(saveMatchDocument('doc-1', { type: 'doc' }, 4)).resolves.toEqual({
+    await expect(
+      saveMatchDocument('doc-1', { type: 'doc' }, 4)
+    ).resolves.toEqual({
       conflict: false,
       version: 5,
     });
@@ -269,7 +269,9 @@ describe('saveMatchDocument (optimistic concurrency)', () => {
     db.update.mockReturnValueOnce(chain([])); // no row matched baseVersion
     db.select.mockReturnValueOnce(chain([latest]));
 
-    await expect(saveMatchDocument('doc-1', { type: 'doc' }, 4)).resolves.toEqual({
+    await expect(
+      saveMatchDocument('doc-1', { type: 'doc' }, 4)
+    ).resolves.toEqual({
       conflict: true,
       latest,
     });

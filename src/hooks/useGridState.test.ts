@@ -20,9 +20,7 @@ describe('handleAddEarlyHour', () => {
     act(() => result.current.handleAddEarlyHour(DEFAULT_HOURS));
     expect(result.current.additionalHours).toEqual(['18']);
 
-    act(() =>
-      result.current.handleAddEarlyHour(['18', ...DEFAULT_HOURS])
-    );
+    act(() => result.current.handleAddEarlyHour(['18', ...DEFAULT_HOURS]));
     expect(result.current.additionalHours).toEqual(['18', '17']);
   });
 
@@ -40,9 +38,7 @@ describe('canAddEarlyHour', () => {
   it('is true while early hours remain', () => {
     const { result } = renderHook(() => useGridState());
     expect(result.current.canAddEarlyHour(DEFAULT_HOURS)).toBe(true);
-    expect(result.current.canAddEarlyHour(['18', ...DEFAULT_HOURS])).toBe(
-      true
-    );
+    expect(result.current.canAddEarlyHour(['18', ...DEFAULT_HOURS])).toBe(true);
   });
 
   it('is false once every early hour is shown', () => {

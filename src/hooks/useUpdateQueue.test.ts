@@ -168,9 +168,7 @@ describe('queueBulkUpdate', () => {
     updateBulkAvailabilityStatus.mockRejectedValueOnce(new Error('db down'));
     const { result } = renderHook(() => useUpdateQueue(options));
 
-    act(() =>
-      result.current.queueBulkUpdate(1, '2026-07-23', ['19'], 'ready')
-    );
+    act(() => result.current.queueBulkUpdate(1, '2026-07-23', ['19'], 'ready'));
     await act(() => vi.advanceTimersByTimeAsync(300));
 
     expect(bulkPending.has(1)).toBe(true);

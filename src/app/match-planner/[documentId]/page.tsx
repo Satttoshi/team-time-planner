@@ -1,9 +1,6 @@
 import { notFound } from 'next/navigation';
 import { after } from 'next/server';
-import {
-  cleanupOrphanedBlobs,
-  getMatchDocument,
-} from '@/lib/document-actions';
+import { cleanupOrphanedBlobs, getMatchDocument } from '@/lib/document-actions';
 import { MatchDocumentClient } from '@/components/match-planner/MatchDocumentClient';
 
 export const dynamic = 'force-dynamic';
