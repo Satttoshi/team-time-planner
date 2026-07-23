@@ -1,34 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Team Time Planner
+
+Real-time availability planner for a Counter-Strike team. Players fill in per-hour availability on a rolling 14-day grid — with optimistic updates and background polling, so the whole team can edit at once without stepping on each other. A built-in **match planner** adds collaborative documents for planning FACEIT matches.
+
+## Stack
+
+Next.js 16 (App Router, server actions) · React 19 · Neon Postgres + Drizzle ORM · Tailwind CSS 4 + Radix UI · Tiptap · Swiper.js · Temporal API (`temporal-polyfill`) · Vitest 4 + React Testing Library
 
 ## Getting Started
 
-First, run the development server:
+Requires Node.js 24+ and a [Neon](https://neon.tech) Postgres database.
 
 ```bash
+npm install
+cp .env.local.example .env.local   # then fill in the values
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Environment variables
 
-## Learn More
+| Variable                | Required        | Purpose                                                  |
+| ----------------------- | --------------- | -------------------------------------------------------- |
+| `DATABASE_URL`          | yes             | Neon Postgres connection string                          |
+| `APP_PASSWORD`          | no (dev)        | Password gate for the whole app; unset = open access     |
+| `AUTH_SECRET`           | no              | Optional secret for auth hardening                       |
+| `BLOB_READ_WRITE_TOKEN` | for match plans | Vercel Blob token for image uploads in the match planner |
 
-To learn more about Next.js, take a look at the following resources:
+### Database
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The Drizzle schema lives in `src/lib/db/schema.ts`, generated migrations in `drizzle/`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npx drizzle-kit generate   # generate a migration after schema changes
+npx drizzle-kit migrate    # apply migrations
+npm run db:studio          # browse the DB with Drizzle Studio
+```
 
-## Deploy on Vercel
+## Scripts
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| Command                 | Description                                      |
+| ----------------------- | ------------------------------------------------ |
+| `npm run dev`           | Dev server                                       |
+| `npm run build`         | Production build                                 |
+| `npm test`              | Run the test suite once                          |
+| `npm run test:watch`    | Tests in watch mode                              |
+| `npm run test:coverage` | Tests with coverage (fails below 70% thresholds) |
+| `npm run lint`          | ESLint                                           |
+| `npm run format`        | Prettier (write) / `format:check` to verify      |
+| `npm run db:studio`     | Drizzle Studio                                   |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Deployment
+
+Built for [Vercel](https://vercel.com) + [Neon](https://neon.tech):
+
+1. Import the repo into Vercel.
+2. Set `DATABASE_URL`, `APP_PASSWORD`, and `AUTH_SECRET` in the project's environment variables.
+3. For the match planner's image uploads, attach a Vercel Blob store and set `BLOB_READ_WRITE_TOKEN`.
+
+## Architecture Notes
+
+- **Availability model** — one row per player per day; `availability.hours` is JSONB (`{ "19": "ready", "20": "uncertain" }`). Single-hour writes use `jsonb_set` so concurrent updates to different hours never clobber each other.
+- **Optimistic update pipeline** — `useGridState` → `useOptimisticUpdates` → `useUpdateQueue` → `usePolling`. Clicks are batched (~300ms), pending chips show a sync ring, and polling pauses during active editing (resumes ~2s after). Server data never overwrites pending optimistic changes.
+- **Dates & time** — all date/time logic uses the Temporal API (`temporal-polyfill`); dates are stored as `YYYY-MM-DD` strings. The `Date` API is considered deprecated in this codebase.
+- **Auth** — a cookie-based password gate in `src/proxy.ts` redirects everything except `/auth`, `/api`, and `/_next` to `/auth` unless the `auth-password` cookie matches `APP_PASSWORD`. `/api` routes validate the password themselves.
+- **Match planner concurrency** — a `version` counter (optimistic concurrency) plus a `presence` JSONB map on the document row; no websockets involved.
+- **Styling** — design tokens only (defined in `src/app/globals.css`): status colors, surfaces, text, and border tokens with light/dark support via next-themes. Raw Tailwind colors are not used.
+
+## Testing & Contributing
+
+```bash
+npm test                      # full suite
+npx vitest run <path>         # single test file
+npm run test:coverage         # coverage report (70% minimum thresholds)
+```
+
+- Tests are co-located with their source (`src/lib/dateUtils.ts` → `src/lib/dateUtils.test.ts`); shared factories and a Drizzle mock live in `src/test-utils/`.
+- Tests never touch a real database — `@/lib/db` is mocked (see `src/lib/actions.test.ts` for the pattern).
+- Timer-based logic (batching, polling) is tested with Vitest fake timers.
+- The Tiptap editor UI is excluded from coverage — jsdom can't exercise ProseMirror/contenteditable.
+
+**Definition of done** for any change: `npm test`, `npm run lint`, and `npm run format:check` all pass, and new or changed behavior is covered by tests.
