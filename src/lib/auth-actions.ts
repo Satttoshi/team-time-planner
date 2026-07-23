@@ -1,16 +1,30 @@
 'use server';
 
 import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
-export async function authenticateUser(password: string) {
+export type LoginState = {
+  error: string;
+};
+
+export async function loginAction(
+  _prevState: LoginState,
+  formData: FormData
+): Promise<LoginState> {
   const appPassword = process.env.APP_PASSWORD;
 
   if (!appPassword) {
-    return { success: false, error: 'Authentication not configured' };
+    return { error: 'Authentication not configured' };
+  }
+
+  const password = formData.get('app-password');
+
+  if (typeof password !== 'string' || !password.trim()) {
+    return { error: 'Please enter the app password' };
   }
 
   if (password !== appPassword) {
-    return { success: false, error: 'Invalid password' };
+    return { error: 'Invalid password' };
   }
 
   // Set cookie with long expiration for persistence
@@ -23,5 +37,5 @@ export async function authenticateUser(password: string) {
     maxAge: 365 * 24 * 60 * 60, // 1 year in seconds for persistent auth
   });
 
-  return { success: true };
+  redirect('/');
 }

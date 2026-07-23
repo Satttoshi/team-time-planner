@@ -1,36 +1,19 @@
 'use client';
 
-import { useState } from 'react';
-import { authenticateUser } from '@/lib/auth-actions';
+import { useActionState } from 'react';
+import { loginAction, type LoginState } from '@/lib/auth-actions';
 import { clsx } from 'clsx';
 
+const initialState: LoginState = { error: '' };
+
 export default function AuthPage() {
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setIsLoading(true);
-
-    try {
-      const result = await authenticateUser(password);
-      if (!result.success) {
-        setError(result.error || 'Authentication failed');
-        setIsLoading(false);
-      } else {
-        // Success - use a small delay to ensure cookie is set, then redirect
-        setTimeout(() => {
-          window.location.replace('/');
-        }, 100);
-      }
-    } catch (error) {
-      console.error('Auth error:', error);
-      setError('An unexpected error occurred');
-      setIsLoading(false);
-    }
-  };
+  // Server-action form: works via native POST even before/without JS
+  // hydration (progressive enhancement), so iOS autofill quirks and
+  // hydration failures can't block the login
+  const [state, formAction, isPending] = useActionState(
+    loginAction,
+    initialState
+  );
 
   return (
     <div className="bg-background flex min-h-screen items-center justify-center">
@@ -44,7 +27,7 @@ export default function AuthPage() {
           </p>
         </div>
 
-        <form className="mt-8 space-y-4 px-4" onSubmit={handleSubmit}>
+        <form className="mt-8 space-y-4 px-4" action={formAction}>
           <div>
             <label htmlFor="app-password" className="sr-only">
               App Password
@@ -54,8 +37,6 @@ export default function AuthPage() {
               name="app-password"
               type="password"
               required
-              value={password}
-              onChange={e => setPassword(e.target.value)}
               className={clsx(
                 'border-border relative block w-full rounded-md border',
                 'bg-surface-elevated text-foreground placeholder-foreground-muted px-3 py-2',
@@ -64,22 +45,22 @@ export default function AuthPage() {
                 'transition-colors duration-150 sm:text-sm'
               )}
               placeholder="Enter app password"
-              disabled={isLoading}
+              disabled={isPending}
               autoComplete="off"
               data-1p-ignore
             />
           </div>
 
-          {error && (
+          {state.error && (
             <div className="text-status-unready text-center text-sm">
-              {error}
+              {state.error}
             </div>
           )}
 
           <div>
             <button
               type="submit"
-              disabled={isLoading || !password.trim()}
+              disabled={isPending}
               className={clsx(
                 'group relative flex w-full justify-center rounded-md',
                 'bg-primary border border-transparent px-4 py-2',
@@ -90,7 +71,7 @@ export default function AuthPage() {
                 'transition-colors duration-150'
               )}
             >
-              {isLoading ? 'Authenticating...' : 'Sign In'}
+              {isPending ? 'Authenticating...' : 'Sign In'}
             </button>
           </div>
         </form>
