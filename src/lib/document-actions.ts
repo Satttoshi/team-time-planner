@@ -1,6 +1,7 @@
 'use server';
 
 import { db, matchDocuments, type MatchDocument } from './db';
+import type { JSONContent } from '@tiptap/react';
 import { and, asc, eq } from 'drizzle-orm';
 import { sql } from 'drizzle-orm';
 import { del, list } from '@vercel/blob';
@@ -131,29 +132,20 @@ export async function deleteMatchDocument(id: string): Promise<void> {
 // are never destroyed.
 const ORPHAN_MIN_AGE_MS = 60 * 60 * 1000;
 
-function collectReferencedBlobPathnames(content: unknown): Set<string> {
+function collectReferencedBlobPathnames(content: JSONContent): Set<string> {
   const pathnames = new Set<string>();
 
-  const walk = (node: unknown): void => {
-    if (!node || typeof node !== 'object') return;
-    const {
-      type,
-      attrs,
-      content: children,
-    } = node as {
-      type?: string;
-      attrs?: { src?: string };
-      content?: unknown[];
-    };
+  const walk = (node: JSONContent): void => {
+    const src: unknown = node.attrs?.src;
 
-    if (type === 'image' && typeof attrs?.src === 'string') {
-      const pathname = new URLSearchParams(attrs.src.split('?')[1] ?? '').get(
+    if (node.type === 'image' && typeof src === 'string') {
+      const pathname = new URLSearchParams(src.split('?')[1] ?? '').get(
         'pathname'
       );
       if (pathname) pathnames.add(pathname);
     }
 
-    children?.forEach(walk);
+    node.content?.forEach(walk);
   };
 
   walk(content);
@@ -202,7 +194,7 @@ export async function getMatchDocument(
 
 export async function saveMatchDocument(
   id: string,
-  content: unknown,
+  content: JSONContent,
   baseVersion: number
 ): Promise<SaveDocumentResult> {
   try {

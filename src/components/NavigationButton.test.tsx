@@ -1,13 +1,11 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { NavigationButton } from './NavigationButton';
-import { type Swiper as SwiperClass } from 'swiper';
 
-const makeSwiper = () =>
-  ({
-    slidePrev: vi.fn(),
-    slideNext: vi.fn(),
-  }) as unknown as SwiperClass;
+const makeSwiper = () => ({
+  slidePrev: vi.fn(),
+  slideNext: vi.fn(),
+});
 
 describe('NavigationButton', () => {
   it('renders an empty placeholder when disabled, to keep the layout stable', () => {

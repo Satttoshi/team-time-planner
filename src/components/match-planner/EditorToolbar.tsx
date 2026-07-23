@@ -66,6 +66,12 @@ function ToolbarDivider() {
   return <div className="bg-border mx-1 h-5 w-px shrink-0" />;
 }
 
+// Tiptap's getAttributes() returns untyped attribute maps — narrow instead
+// of asserting.
+function optionalString(value: unknown): string | undefined {
+  return typeof value === 'string' ? value : undefined;
+}
+
 export function EditorToolbar({ editor }: EditorToolbarProps) {
   const state = useEditorState({
     editor,
@@ -79,14 +85,14 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
       bulletList: e.isActive('bulletList'),
       orderedList: e.isActive('orderedList'),
       link: e.isActive('link'),
-      textColor: e.getAttributes('textStyle').color as string | undefined,
+      textColor: optionalString(e.getAttributes('textStyle').color),
       canUndo: e.can().undo(),
       canRedo: e.can().redo(),
     }),
   });
 
   const handleLink = () => {
-    const previousUrl = editor.getAttributes('link').href as string | undefined;
+    const previousUrl = optionalString(editor.getAttributes('link').href);
     const url = window.prompt('Link URL', previousUrl ?? 'https://');
     if (url === null) return;
 

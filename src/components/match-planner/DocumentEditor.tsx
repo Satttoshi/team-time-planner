@@ -71,12 +71,17 @@ function isTiptapDoc(content: unknown): content is JSONContent {
     typeof content === 'object' &&
     content !== null &&
     'type' in content &&
-    (content as JSONContent).type === 'doc'
+    content.type === 'doc'
   );
 }
 
+// FileHandler callbacks receive the core Editor (not @tiptap/react's
+// subclass), so the image helpers accept the structural subset they use —
+// both editor classes satisfy it.
+type EditorLike = Pick<Editor, 'state' | 'view' | 'chain'>;
+
 function findImageBySrc(
-  editor: Editor,
+  editor: EditorLike,
   src: string
 ): { pos: number; nodeSize: number } | null {
   let found: { pos: number; nodeSize: number } | null = null;
@@ -91,7 +96,7 @@ function findImageBySrc(
   return found;
 }
 
-function replaceImageSrc(editor: Editor, fromSrc: string, toSrc: string) {
+function replaceImageSrc(editor: EditorLike, fromSrc: string, toSrc: string) {
   const found = findImageBySrc(editor, fromSrc);
   if (!found) return;
   const node = editor.state.doc.nodeAt(found.pos);
@@ -104,7 +109,7 @@ function replaceImageSrc(editor: Editor, fromSrc: string, toSrc: string) {
   editor.view.dispatch(tr);
 }
 
-function removeImage(editor: Editor, src: string) {
+function removeImage(editor: EditorLike, src: string) {
   const found = findImageBySrc(editor, src);
   if (!found) return;
   const tr = editor.state.tr.delete(found.pos, found.pos + found.nodeSize);
@@ -112,7 +117,7 @@ function removeImage(editor: Editor, src: string) {
 }
 
 async function uploadImage(
-  editor: Editor,
+  editor: EditorLike,
   documentId: string,
   file: File,
   pos: number
@@ -142,8 +147,16 @@ async function uploadImage(
       throw new Error(`Upload failed with status ${response.status}`);
     }
 
-    const { url } = (await response.json()) as { url: string };
-    replaceImageSrc(editor, objectUrl, url);
+    const payload: unknown = await response.json();
+    if (
+      !payload ||
+      typeof payload !== 'object' ||
+      !('url' in payload) ||
+      typeof payload.url !== 'string'
+    ) {
+      throw new Error('Upload response did not include a url');
+    }
+    replaceImageSrc(editor, objectUrl, payload.url);
   } catch (error) {
     console.error('Failed to upload image:', error);
     removeImage(editor, objectUrl);
@@ -192,7 +205,7 @@ export function DocumentEditor({
         onPaste: (pasteEditor, files) => {
           files.forEach(file => {
             void uploadImage(
-              pasteEditor as Editor,
+              pasteEditor,
               documentId,
               file,
               pasteEditor.state.selection.anchor
@@ -201,7 +214,7 @@ export function DocumentEditor({
         },
         onDrop: (dropEditor, files, pos) => {
           files.forEach(file => {
-            void uploadImage(dropEditor as Editor, documentId, file, pos);
+            void uploadImage(dropEditor, documentId, file, pos);
           });
         },
       }),

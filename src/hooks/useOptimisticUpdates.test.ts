@@ -14,7 +14,9 @@ interface HookProps {
 
 function setup(initial: HookProps) {
   const userActiveRef = { current: initial.userActive ?? false };
-  const activityTimeoutRef = { current: null as NodeJS.Timeout | null };
+  const activityTimeoutRef: { current: NodeJS.Timeout | null } = {
+    current: null,
+  };
   const updateQueueRef = { current: new Map() };
   const bulkUpdateQueueRef = { current: new Map() };
 
