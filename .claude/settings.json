@@ -1,5 +1,20 @@
 {
   "permissions": {
     "deny": ["Read(./.env.local)"]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.command' | grep -q 'git push' || exit 0; cd \"$CLAUDE_PROJECT_DIR\" && npm run lint && npm run format:check && npm run test:coverage || { echo 'Local CI failed - push blocked. Fix lint/format/tests before pushing.' >&2; exit 2; }",
+            "timeout": 300,
+            "statusMessage": "Running local CI checks before push…"
+          }
+        ]
+      }
+    ]
   }
 }
