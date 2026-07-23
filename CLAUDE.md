@@ -26,6 +26,7 @@ Work is not finished until all of these pass:
 ## Hard Rules
 
 - **Design tokens only**: never use raw Tailwind colors (`text-green-600`, `bg-blue-500`). Use the tokens defined in `src/app/globals.css`: status (`status-ready`, `status-uncertain`, `status-unready`, `status-unknown`, each with `-bg` variant), surfaces (`background`, `surface`, `surface-elevated`), text (`foreground`, `foreground-secondary`, `foreground-muted`), borders (`border`, `border-elevated`), plus `primary` and `cs-*` accents. All tokens support light/dark via next-themes.
+- **No `as` type assertions, no `any`** in TypeScript — details and alternatives in `.claude/rules/typescript.md` (auto-loaded when working on `.ts`/`.tsx` files).
 - **Temporal API only** for date/time logic (`temporal-polyfill`); the `Date` API is deprecated in this codebase. Dates are stored as `YYYY-MM-DD` strings.
 - **Atomic hour updates**: single-hour availability writes must use `jsonb_set` (see `updateAvailabilityStatus` in `src/lib/actions.ts`) so concurrent users never clobber each other's hours.
 - **Server data never overwrites pending optimistic changes.** The update pipeline (`useGridState` → `useOptimisticUpdates` → `useUpdateQueue` → `usePolling`) batches clicks (~300ms), shows a sync ring on pending chips, and pauses polling during active editing (resumes ~2s after). Preserve these invariants when touching it.
