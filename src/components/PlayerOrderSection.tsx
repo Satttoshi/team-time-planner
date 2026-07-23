@@ -110,6 +110,8 @@ export function PlayerOrderSection({
     loadPlayers();
   }, [refreshTrigger, loadPlayers]); // Reload when refreshTrigger changes
 
+  /* v8 ignore start -- dnd-kit pointer drags cannot be simulated in jsdom;
+     the drag handlers are covered by manual testing only */
   const handleDragStart = (event: DragStartEvent) => {
     setDraggedPlayerId(Number(event.active.id));
   };
@@ -152,6 +154,7 @@ export function PlayerOrderSection({
       setIsUpdating(false);
     }
   };
+  /* v8 ignore stop */
 
   if (isLoading) {
     return (

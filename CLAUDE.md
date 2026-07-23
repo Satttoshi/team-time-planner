@@ -29,6 +29,31 @@ Real-time availability planner for a Counter-Strike team where 5-7 players/coach
 // Early hours available: 16:00, 17:00, 18:00 (can be added via + button)
 ```
 
+## Testing
+
+- **Stack**: Vitest 4 + React Testing Library + jsdom, coverage via `@vitest/coverage-v8`
+- **Config**: `vitest.config.ts` (aliases, environment, coverage scope + thresholds), `vitest.setup.ts` (jest-dom matchers, `matchMedia`/`ResizeObserver` stubs for next-themes and dnd-kit)
+- **Commands**:
+  - `npm test` — run the full suite once
+  - `npm run test:watch` — watch mode during development
+  - `npm run test:coverage` — full suite with coverage; FAILS if any threshold (70% statements/branches/functions/lines) is not met
+  - `npx vitest run <path>` — run a single test file
+- **Test location**: co-located with the source as `*.test.ts` / `*.test.tsx` (e.g. `src/lib/dateUtils.ts` → `src/lib/dateUtils.test.ts`)
+- **Shared helpers**: `src/test-utils/` — `factories.ts` (player/availability builders) and `mockDb.ts` (recording mock for Drizzle's fluent query builder). Excluded from coverage.
+- **Database**: tests NEVER touch a real database. Mock the db module with `vi.mock('@/lib/db', ...)` re-exporting the real schema plus a mocked `db` (see `src/lib/actions.test.ts` for the pattern). `src/lib/db/index.ts` throws without `DATABASE_URL`, so never import it unmocked in tests.
+- **Timers**: batching/polling/activity logic is timer-based — use `vi.useFakeTimers()` + `vi.advanceTimersByTimeAsync()` (see hook tests)
+
+### Testing Rules for Every Change (MANDATORY)
+
+1. **Run tests on touched files**: after changing any source file, run its co-located test file (`npx vitest run <test-file>`). Run the full `npm test` before declaring work finished.
+2. **Create and adjust tests**: new logic/components require new tests; behavior changes require updating the affected tests. A change is not complete while tests fail or new behavior is untested.
+3. **Keep coverage**: coverage must stay above the enforced 70% thresholds (currently ~90%). Verify with `npm run test:coverage` when adding non-trivial code.
+4. **Write meaningful tests only**: test observable behavior and edge cases (business rules, error paths, race-condition handling) — never tests that merely re-assert mock wiring or chase line numbers.
+5. **Coverage exceptions**: only for code that genuinely cannot be exercised in jsdom or unit tests:
+   - Config-level excludes in `vitest.config.ts` (`coverage.exclude`): Next.js glue (`src/app/**`), tiptap match-planner editor UI, `SwiperContainer.tsx`, `src/lib/db/index.ts` — each with a reason comment
+   - Inline `/* v8 ignore start */ ... /* v8 ignore stop */` for unreachable blocks inside otherwise-tested files (e.g. dnd-kit drag handlers in `PlayerOrderSection.tsx`) — always with a `--` reason
+   - Never add an exception to dodge writing a feasible test
+
 ## Critical Technical Requirements
 
 ### Design System & Styling
