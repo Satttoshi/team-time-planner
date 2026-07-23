@@ -86,9 +86,7 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
   });
 
   const handleLink = () => {
-    const previousUrl = editor.getAttributes('link').href as
-      | string
-      | undefined;
+    const previousUrl = editor.getAttributes('link').href as string | undefined;
     const url = window.prompt('Link URL', previousUrl ?? 'https://');
     if (url === null) return;
 
