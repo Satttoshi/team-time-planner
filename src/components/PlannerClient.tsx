@@ -15,17 +15,17 @@ import { SwiperContainer } from './SwiperContainer';
 import { PlannerFooter } from './PlannerFooter';
 import { usePolling } from '@/hooks/usePolling';
 
-interface PlannerClientProps {
-  initialData: Record<string, PlayerAvailability[]>;
-}
-
-export function PlannerClient({ initialData }: PlannerClientProps) {
+export function PlannerClient() {
   const [dates] = useState(() => getTwoWeekWindow());
   const [currentDayIndex] = useState(() =>
     getCurrentDayIndex(getTwoWeekWindow())
   );
-  const [playerAvailabilityMap, setPlayerAvailabilityMap] =
-    useState<Record<string, PlayerAvailability[]>>(initialData);
+  // null until the first client-side load resolves; the grid stays hidden
+  // behind a spinner so no empty or stale table flashes on boot
+  const [playerAvailabilityMap, setPlayerAvailabilityMap] = useState<Record<
+    string,
+    PlayerAvailability[]
+  > | null>(null);
   const [isUserActive, setIsUserActive] = useState(false);
 
   const loadAllData = useCallback(async () => {
@@ -66,14 +66,24 @@ export function PlannerClient({ initialData }: PlannerClientProps) {
   return (
     <main className="min-h-screen pb-14">
       <div className="container mx-auto h-[700px]">
-        <SwiperContainer
-          dates={dates}
-          initialSlideIndex={currentDayIndex}
-          playerAvailabilityMap={playerAvailabilityMap}
-          onUpdate={loadAllData}
-          onUserActivity={setIsUserActive}
-          onPlayersReordered={loadAllData}
-        />
+        {playerAvailabilityMap ? (
+          <SwiperContainer
+            dates={dates}
+            initialSlideIndex={currentDayIndex}
+            playerAvailabilityMap={playerAvailabilityMap}
+            onUpdate={loadAllData}
+            onUserActivity={setIsUserActive}
+            onPlayersReordered={loadAllData}
+          />
+        ) : (
+          <div
+            role="status"
+            aria-label="Loading availability"
+            className="flex h-full items-center justify-center"
+          >
+            <div className="text-foreground-muted h-8 w-8 animate-spin rounded-full border-2 border-current border-t-transparent" />
+          </div>
+        )}
       </div>
       <PlannerFooter />
     </main>

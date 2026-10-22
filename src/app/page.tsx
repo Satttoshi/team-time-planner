@@ -1,18 +1,13 @@
 import { PlannerClient } from '@/components/PlannerClient';
-import {
-  seedPlayersIfNeeded,
-  getAllPlayerAvailabilityForDates,
-} from '@/lib/actions';
-import { getTwoWeekWindow, formatDateForStorage } from '@/lib/dateUtils';
+import { seedPlayersIfNeeded } from '@/lib/actions';
+
+// Render per request: a statically prerendered page would seed only at build
+// time. Availability is loaded on the client (in the viewer's timezone) while
+// PlannerClient shows a spinner.
+export const dynamic = 'force-dynamic';
 
 export default async function Home() {
-  // Seed the database if needed
   await seedPlayersIfNeeded();
 
-  // Load initial data on server
-  const dates = getTwoWeekWindow();
-  const dateStrings = dates.map(date => formatDateForStorage(date));
-  const initialData = await getAllPlayerAvailabilityForDates(dateStrings);
-
-  return <PlannerClient initialData={initialData} />;
+  return <PlannerClient />;
 }
