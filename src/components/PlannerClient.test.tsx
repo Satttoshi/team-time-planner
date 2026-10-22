@@ -32,18 +32,48 @@ beforeEach(() => {
 });
 
 describe('PlannerClient', () => {
-  it('renders the initial server data and a link to the match planner', () => {
-    render(<PlannerClient initialData={{ '2026-07-23': [] }} />);
+  it('shows a spinner instead of the grid until the first load resolves', async () => {
+    let resolveLoad: (value: Record<string, unknown[]>) => void = () => {};
+    actions.getAllPlayerAvailabilityForDates.mockReturnValue(
+      new Promise(resolve => {
+        resolveLoad = resolve;
+      })
+    );
+    render(<PlannerClient />);
 
-    expect(screen.getByTestId('swiper')).toHaveTextContent('2026-07-23');
+    expect(
+      screen.getByRole('status', { name: 'Loading availability' })
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId('swiper')).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Match Plans/ })).toHaveAttribute(
       'href',
       '/match-planner'
     );
+
+    resolveLoad({ '2026-07-23': [] });
+
+    expect(await screen.findByTestId('swiper')).toHaveTextContent('2026-07-23');
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  });
+
+  it('keeps the spinner while both the load and the fallback fail', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    actions.getAllPlayerAvailabilityForDates.mockRejectedValue(
+      new Error('network down')
+    );
+    actions.getPlayers.mockRejectedValue(new Error('network down'));
+    render(<PlannerClient />);
+
+    await waitFor(() => {
+      expect(actions.getPlayers).toHaveBeenCalled();
+    });
+
+    expect(screen.getByRole('status')).toBeInTheDocument();
+    expect(screen.queryByTestId('swiper')).not.toBeInTheDocument();
   });
 
   it('polls availability for the full visible date window', async () => {
-    render(<PlannerClient initialData={{}} />);
+    render(<PlannerClient />);
 
     await waitFor(() => {
       expect(actions.getAllPlayerAvailabilityForDates).toHaveBeenCalled();
@@ -59,7 +89,7 @@ describe('PlannerClient', () => {
     actions.getAllPlayerAvailabilityForDates.mockResolvedValue({
       '2026-09-01': [],
     });
-    render(<PlannerClient initialData={{}} />);
+    render(<PlannerClient />);
 
     await waitFor(() => {
       expect(screen.getByTestId('swiper')).toHaveTextContent('2026-09-01');
@@ -71,7 +101,7 @@ describe('PlannerClient', () => {
     actions.getAllPlayerAvailabilityForDates.mockRejectedValue(
       new Error('network down')
     );
-    render(<PlannerClient initialData={{}} />);
+    render(<PlannerClient />);
 
     await waitFor(() => {
       expect(actions.getPlayers).toHaveBeenCalledWith(true);
